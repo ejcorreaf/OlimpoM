@@ -22,7 +22,7 @@ class RutinasUpdateRequest extends FormRequest
     public function rules(): array {
         return [
             'email' => 'required|email', // trainee dueño de la rutina
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'sometimes|string|max:255',
             'descripcion' => 'nullable|string',
         ];
     }

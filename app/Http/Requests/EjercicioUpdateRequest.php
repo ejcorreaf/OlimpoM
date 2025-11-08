@@ -21,9 +21,9 @@ class EjercicioUpdateRequest extends FormRequest
      */
     public function rules(): array {
         return [
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'sometimes|string|max:255',
             'descripcion' => 'nullable|string',
-            'grupo_muscular' => 'required|string|max:255',
+            'grupo_muscular' => 'sometimes|string|max:255',
             'foto' => 'nullable|image|max:2048',
         ];
     }

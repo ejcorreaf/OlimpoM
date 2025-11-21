@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminEjerciciosController;
+use App\Http\Controllers\Api\Admin\AdminRutinasController;
+use App\Http\Controllers\Api\Admin\AdminUsuariosController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -7,43 +11,108 @@ use App\Http\Controllers\Api\Entrenador\EjerciciosController;
 use App\Http\Controllers\Api\Entrenador\RutinasController;
 use App\Http\Controllers\Api\Trainee\RutinasTraineeController;
 
-// Ruta de prueba para verificar el funcionamiento de la API
-Route::get('/test', fn() => response()->json(['message'=>'API ok']));
+// ============================
+// Ruta de test
+// ============================
+Route::get('/test', fn() => response()->json(['message' => 'API ok']));
 
-// Rutas públicas para registro e inicio de sesión
-Route::post('/register',[AuthController::class,'register']);
-Route::post('/login',[AuthController::class,'login']);
+// ============================
+// Rutas públicas
+// ============================
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-// Grupo de rutas que requieren autenticación
+
+// ============================
+// Rutas para usuarios autenticados
+// ============================
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', fn(\Illuminate\Http\Request $r) => $r->user()); // Obtiene el usuario autenticado
-    Route::post('/logout',[AuthController::class,'logout']); // Cierra la sesión
+
+    // Obtener usuario autenticado
+    Route::get('/user', function (Request $r) {
+        $user = $r->user();
+        $user->role = $user->getRoleNames()->first();
+        return $user;
+    });
+
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // ============================
+    // Subida de foto de perfil
+    // ============================
+    Route::post('/user/photo', [AuthController::class, 'updatePhoto']);
 });
 
-// Rutas específicas para entrenadores
-Route::middleware(['auth:sanctum','role:trainer'])->prefix('entrenador')->group(function () {
-    // Conjunto de rutas para manejar ejercicios
-    Route::apiResource('ejercicios', EjerciciosController::class);
+/*
+// ============================
+// Verificación de Email
+// ============================
 
-    // Conjunto de rutas para manejar rutinas
-    Route::apiResource('rutinas', RutinasController::class);
+// Reenviar email de verificación
+Route::post('/email/verification-notification', function (Request $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email ya verificado']);
+    }
 
-    // Asigna ejercicios a una rutina
-    Route::post('/rutinas/{rutina}/ejercicios', [RutinasController::class,'asignarEjercicios']);
-    // Muestra los ejercicios de una rutina
-    Route::get('/rutinas/{rutina}/ejercicios', [RutinasController::class,'verEjercicios']);
-    // Sincroniza los ejercicios de una rutina
-    Route::put('/rutinas/{rutina}/ejercicios', [RutinasController::class,'sincronizarEjercicios']);
-    // Elimina un ejercicio de una rutina
-    Route::delete('/rutinas/{rutina}/ejercicios/{ejercicioId}', [RutinasController::class,'eliminarEjercicio']);
+    $request->user()->sendEmailVerificationNotification();
 
-    // Obtiene la lista de trainees
-    Route::get('/trainees', [RutinasController::class,'trainees']);
+    return response()->json(['message' => 'Email enviado']);
 });
 
-// Rutas específicas para trainees
-Route::middleware(['auth:sanctum','role:trainee'])->prefix('trainee')->group(function () {
-    Route::get('/rutinas', [RutinasTraineeController::class,'index']);
-    Route::get('/rutinas/{id}', [RutinasTraineeController::class,'show']);
-});
+// Validación del email desde el enlace del correo
+Route::get('/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();  // Marca el email como verificado
+    return redirect('http://localhost:4200/email-verified');
+})->name('verification.verify');
+*/
 
+// =====================================================
+// RUTAS ENTRENADOR (role:trainer)
+// =====================================================
+Route::middleware(['auth:sanctum', 'role:trainer'])
+    ->prefix('entrenador')
+    ->group(function () {
+
+        Route::apiResource('ejercicios', EjerciciosController::class);
+        Route::apiResource('rutinas', RutinasController::class);
+
+        Route::post('/rutinas/{rutina}/ejercicios', [RutinasController::class, 'asignarEjercicios']);
+        Route::get('/rutinas/{rutina}/ejercicios', [RutinasController::class, 'verEjercicios']);
+        Route::put('/rutinas/{rutina}/ejercicios', [RutinasController::class, 'sincronizarEjercicios']);
+        Route::delete('/rutinas/{rutina}/ejercicios/{ejercicioId}', [RutinasController::class, 'eliminarEjercicio']);
+
+        Route::get('/trainees', [RutinasController::class,'trainees']);
+    });
+
+
+// =====================================================
+// RUTAS TRAINEE (role:trainee)
+// =====================================================
+Route::middleware(['auth:sanctum', 'role:trainee'])
+    ->prefix('trainee')
+    ->group(function () {
+        Route::get('/rutinas', [RutinasTraineeController::class, 'index']);
+        Route::get('/rutinas/{id}', [RutinasTraineeController::class, 'show']);
+    });
+
+
+// =====================================================
+// RUTAS ADMIN (role:admin)
+// =====================================================
+Route::middleware(['auth:sanctum', 'role:admin'])
+    ->prefix('admin')
+    ->group(function () {
+
+        Route::apiResource('usuarios', AdminUsuariosController::class);
+        Route::apiResource('ejercicios', AdminEjerciciosController::class);
+        Route::apiResource('rutinas', AdminRutinasController::class);
+
+        Route::post('/rutinas/{rutina}/ejercicios', [AdminRutinasController::class, 'asignarEjercicios']);
+        Route::get('/rutinas/{rutina}/ejercicios', [AdminRutinasController::class, 'verEjercicios']);
+        Route::put('/rutinas/{rutina}/ejercicios', [AdminRutinasController::class, 'sincronizarEjercicios']);
+        Route::delete('/rutinas/{rutina}/ejercicios/{ejercicioId}', [AdminRutinasController::class, 'eliminarEjercicio']);
+
+        Route::get('/trainees', [AdminUsuariosController::class, 'trainees']);
+        Route::get('/trainers', [AdminUsuariosController::class, 'trainers']);
+    });

@@ -34,6 +34,11 @@ class AuthController extends Controller
         // Asignar el rol por defecto "trainee". Los admins serán quienes cambien los roles manualmente.
         $user->assignRole('trainee');
 
+        /*
+        * Enviar email de verificación
+        * $user->sendEmailVerificationNotification();
+        */
+
         // Crear token personal de acceso (Sanctum)
         $token = $user->createToken('api')->plainTextToken;
 
@@ -70,6 +75,14 @@ class AuthController extends Controller
          */
         $user = Auth::user();
 
+        /**
+        *if (!$user->hasVerifiedEmail()) {
+        *    return response()->json([
+        *        'message' => 'Debes verificar tu correo electrónico antes de iniciar sesión.'
+        *], 403);
+        *}
+        */
+
         // Generar token de acceso
         $token = $user->createToken('api')->plainTextToken;
 
@@ -91,4 +104,29 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message'=>'Logout ok']);
     }
+
+    /**
+     * UpdatePhoto
+     *
+     * Permite cambiar la foto de perfil del usuario autenticado.
+     */
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|max:2048'
+        ]);
+
+        $user = $request->user();
+
+        $path = $request->file('photo')->store('photos', 'public');
+
+        $user->photo_url = asset('storage/' . $path);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Photo updated',
+            'photo_url' => $user->photo_url
+        ]);
+    }
+
 }

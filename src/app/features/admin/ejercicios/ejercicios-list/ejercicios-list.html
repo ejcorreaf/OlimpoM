@@ -1,0 +1,75 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Ejercicios</h2>
+    <a routerLink="/admin/ejercicios/nuevo" class="btn btn-primary">
+      Nuevo Ejercicio
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Grupo Muscular</th>
+              <th>Descripción</th>
+              <th>Foto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ejercicio of ejercicios; track ejercicio.id) {
+              <tr>
+                <td>{{ ejercicio.nombre }}</td>
+                <td>{{ ejercicio.grupo_muscular }}</td>
+                <td>
+                  {{ ejercicio.descripcion && ejercicio.descripcion.length > 50 ? 
+                     (ejercicio.descripcion | slice:0:50) + '...' : ejercicio.descripcion }}
+                </td>
+                <td>
+                  @if (ejercicio.foto) {
+                    <img [src]="'http://localhost:8000/ejercicios/' + ejercicio.foto" 
+                         [alt]="ejercicio.nombre" 
+                         class="img-thumbnail" 
+                         style="width: 60px; height: 60px; object-fit: cover;">
+                  } @else {
+                    <span class="text-muted">Sin imagen</span>
+                  }
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a [routerLink]="['/admin/ejercicios/editar', ejercicio.id]" 
+                       class="btn btn-outline-primary">
+                      Editar
+                    </a>
+                    <button (click)="confirmDelete(ejercicio)" 
+                            class="btn btn-outline-danger">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (ejercicios.length === 0) {
+              <tr>
+                <td colspan="5" class="text-center text-muted">
+                  No hay ejercicios registrados
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (showDeleteModal) {
+  <app-confirm-modal 
+    [message]="'¿Estás seguro de que quieres eliminar el ejercicio ' + (ejercicioToDelete?.nombre || '') + '?'"
+    (confirm)="onDeleteConfirm()"
+    (cancel)="onDeleteCancel()">
+  </app-confirm-modal>
+}

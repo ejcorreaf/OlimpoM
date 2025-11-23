@@ -1,0 +1,81 @@
+<div class="container mt-5">
+  <div class="d-flex justify-content-center h-100">
+    <div>
+
+      <h3 class="text-center mb-3">Crear cuenta</h3>
+
+      <div class="d-flex justify-content-center">
+        <form [formGroup]="registerForm" (ngSubmit)="register()">
+
+          <!-- Usuario -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-person"></i>
+            </span>
+            <input
+              formControlName="name"
+              class="form-control input-lg rounded-0"
+              placeholder="Usuario">
+          </div>
+          @if (registerForm.get('name')?.touched && registerForm.get('name')?.invalid) {
+            <small class="text-danger">El usuario es obligatorio</small>
+          }
+
+          <!-- Email -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-envelope"></i>
+            </span>
+            <input
+              formControlName="email"
+              class="form-control input-lg rounded-0"
+              placeholder="Email">
+          </div>
+
+          @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+            <small class="text-danger" *ngIf="registerForm.get('email')?.hasError('required')">
+              El email es obligatorio
+            </small>
+            <small class="text-danger" *ngIf="registerForm.get('email')?.hasError('email')">
+              Formato de email inválido
+            </small>
+          }
+
+          @if (registerForm.get('email')?.hasError('emailTaken')) {
+            <small class="text-danger">Este email ya está registrado</small>
+          }
+
+          <!-- Contraseña -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-key"></i>
+            </span>
+            <input
+              type="password"
+              formControlName="password"
+              class="form-control input-lg rounded-0"
+              placeholder="Contraseña">
+          </div>
+          @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+            <small class="text-danger">La contraseña es obligatoria</small>
+          }
+
+          <!-- Error general -->
+          @if (errorRegistro) {
+            <div class="mb-2">
+              <span class="text-danger">No se ha podido registrar</span>
+            </div>
+          }
+
+          <!-- Botón -->
+          <div class="d-flex justify-content-center mt-3">
+            <button type="submit" class="btn bg-primary text-white" [disabled]="registerForm.invalid">
+              Registrarse
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

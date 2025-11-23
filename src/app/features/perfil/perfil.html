@@ -1,0 +1,21 @@
+<div class="container mt-3">
+  <h2>Mi Perfil</h2>
+
+  @if (user) {
+    <div>
+      <img
+        class="rounded-circle mb-3"
+        [src]="user.photo_url ?? 'assets/default-avatar.png'"
+        width="120">
+
+      <p><strong>Nombre:</strong> {{ user.name }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Rol:</strong> {{ getUserRole() }}</p>
+
+      <hr>
+
+      <input type="file" (change)="onFileSelected($event)">
+      <button class="btn btn-primary mt-2" (click)="upload()">Subir foto</button>
+    </div>
+  }
+</div>

@@ -1,0 +1,60 @@
+<div class="container mt-5">
+  <div class="d-flex justify-content-center h-100">
+    <div>
+
+       <!-- Logo -->
+      <div class="d-flex justify-content-center">
+        <div class="brand_logo_container mb-2">
+          <img src="/logo.png" alt="Logo">
+        </div>
+      </div>
+
+
+      <!-- Formulario -->
+      <div class="d-flex justify-content-center">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <!-- Email -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-person"></i>
+            </span>
+            <input
+              formControlName="email"
+              type="email"
+              class="form-control input-lg rounded-0"
+              placeholder="Correo electrónico"
+            >
+          </div>
+
+          <!-- Password -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-key"></i>
+            </span>
+            <input
+              formControlName="password"
+              type="password"
+              class="form-control input-lg rounded-0"
+              placeholder="Contraseña"
+            >
+          </div>
+
+          <!-- Error -->
+          <div class="mb-2">
+            @if (error) {
+              <span class="text-danger">{{ error }}</span>
+            }
+          </div>
+
+          <!-- Botón -->
+          <div class="d-flex justify-content-center mt-3">
+            <button type="submit" class="btn bg-primary text-white">Entrar</button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

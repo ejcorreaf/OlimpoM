@@ -1,0 +1,89 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Rutinas</h2>
+    <a routerLink="/admin/rutinas/nuevo" class="btn btn-primary">
+      Nueva Rutina
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <form [formGroup]="searchForm" class="row g-3">
+        <div class="col-md-6">
+          <label for="search" class="form-label">Buscar por nombre de usuario:</label>
+          <input type="text" 
+                 id="search" 
+                 formControlName="search"
+                 class="form-control"
+                 placeholder="Escribe para buscar...">
+        </div>
+      </form>
+    </div>
+    
+    <div class="card-body">
+      @if (loading) {
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rutina of rutinas; track rutina.id) {
+                <tr>
+                  <td>{{ rutina.nombre }}</td>
+                  <td>{{ rutina.usuario?.name }}</td>
+                  <td>
+                    {{ rutina.descripcion && rutina.descripcion.length > 50 ? 
+                       (rutina.descripcion | slice:0:50) + '...' : rutina.descripcion }}
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <a [routerLink]="['/admin/rutinas/editar', rutina.id]" 
+                         class="btn btn-outline-primary">
+                        Editar
+                      </a>
+                      <a [routerLink]="['/admin/rutinas', rutina.id, 'ejercicios']" 
+                         class="btn btn-outline-success">
+                        Ejercicios
+                      </a>
+                      <button (click)="confirmDelete(rutina)" 
+                              class="btn btn-outline-danger">
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if (rutinas.length === 0) {
+                <tr>
+                  <td colspan="4" class="text-center text-muted">
+                    No hay rutinas registradas
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (showDeleteModal) {
+  <app-confirm-modal 
+    [message]="'¿Estás seguro de que quieres eliminar la rutina ' + (rutinaToDelete?.nombre || '') + '?'"
+    (confirm)="onDeleteConfirm()"
+    (cancel)="onDeleteCancel()">
+  </app-confirm-modal>
+}

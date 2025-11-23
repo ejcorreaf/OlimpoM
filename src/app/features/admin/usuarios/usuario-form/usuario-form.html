@@ -1,0 +1,104 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">{{ isEdit ? 'Editar Usuario' : 'Nuevo Usuario' }}</h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()">
+            
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre *</label>
+              <input type="text" 
+                     id="name" 
+                     formControlName="name"
+                     class="form-control"
+                     [class.is-invalid]="usuarioForm.get('name')?.invalid && usuarioForm.get('name')?.touched">
+              @if (usuarioForm.get('name')?.errors?.['required'] && usuarioForm.get('name')?.touched) {
+                <div class="invalid-feedback">
+                  El nombre es obligatorio
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email *</label>
+              <input type="email" 
+                     id="email" 
+                     formControlName="email"
+                     class="form-control"
+                     [class.is-invalid]="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched">
+              @if (usuarioForm.get('email')?.errors?.['required'] && usuarioForm.get('email')?.touched) {
+                <div class="invalid-feedback">
+                  El email es obligatorio
+                </div>
+              }
+              @if (usuarioForm.get('email')?.errors?.['email'] && usuarioForm.get('email')?.touched) {
+                <div class="invalid-feedback">
+                  Debe ser un email válido
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                {{ isEdit ? 'Nueva Contraseña (dejar en blanco para no cambiar)' : 'Contraseña *' }}
+              </label>
+              <input type="password" 
+                     id="password" 
+                     formControlName="password"
+                     class="form-control"
+                     [class.is-invalid]="usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched">
+              @if (usuarioForm.get('password')?.errors?.['required'] && usuarioForm.get('password')?.touched) {
+                <div class="invalid-feedback">
+                  La contraseña es obligatoria
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
+              <input type="password" 
+                     id="password_confirmation" 
+                     formControlName="password_confirmation"
+                     class="form-control">
+            </div>
+
+            <div class="mb-3">
+              <label for="role" class="form-label">Rol *</label>
+              <select id="role" 
+                      formControlName="role"
+                      class="form-control"
+                      [class.is-invalid]="usuarioForm.get('role')?.invalid && usuarioForm.get('role')?.touched">
+                @for (rol of roles; track rol.value) {
+                  <option [value]="rol.value">{{ rol.label }}</option>
+                }
+              </select>
+              @if (usuarioForm.get('role')?.errors?.['required'] && usuarioForm.get('role')?.touched) {
+                <div class="invalid-feedback">
+                  El rol es obligatorio
+                </div>
+              }
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" 
+                      class="btn btn-primary"
+                      [disabled]="usuarioForm.invalid || loading">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                {{ isEdit ? 'Actualizar' : 'Crear' }} Usuario
+              </button>
+              
+              <a routerLink="/admin/usuarios" class="btn btn-secondary">
+                Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

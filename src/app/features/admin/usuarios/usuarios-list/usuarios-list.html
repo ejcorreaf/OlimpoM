@@ -1,0 +1,79 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Usuarios</h2>
+    <a routerLink="/admin/usuarios/nuevo" class="btn btn-primary">
+      Nuevo Usuario
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      @if (loading) {
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (usuario of usuarios; track usuario.id) {
+                <tr>
+                  <td>{{ usuario.id }}</td>
+                  <td>{{ usuario.name }}</td>
+                  <td>{{ usuario.email }}</td>
+                  <td>
+                    <span class="badge" 
+                          [class]="getRol(usuario) === 'admin' ? 'bg-danger' : 
+                                   getRol(usuario) === 'trainer' ? 'bg-warning' : 'bg-info'">
+                      {{ getRol(usuario) }}
+                    </span>
+                  </td>
+                  <td>{{ usuario.created_at | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <a [routerLink]="['/admin/usuarios/editar', usuario.id]" 
+                         class="btn btn-outline-primary">
+                        Editar
+                      </a>
+                      <button (click)="confirmDelete(usuario)" 
+                              class="btn btn-outline-danger">
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+              @if (usuarios.length === 0) {
+                <tr>
+                  <td colspan="6" class="text-center text-muted">
+                    No hay usuarios registrados
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (showDeleteModal) {
+  <app-confirm-modal 
+    [message]="'¿Estás seguro de que quieres eliminar al usuario ' + (usuarioToDelete?.name || '') + '?'"
+    (confirm)="onDeleteConfirm()"
+    (cancel)="onDeleteCancel()">
+  </app-confirm-modal>
+}

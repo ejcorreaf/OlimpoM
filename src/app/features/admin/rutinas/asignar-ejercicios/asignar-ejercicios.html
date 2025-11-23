@@ -1,0 +1,119 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestionar Ejercicios - {{ rutina?.nombre }}</h2>
+    <a routerLink="/admin/rutinas" class="btn btn-secondary">
+      Volver a Rutinas
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Usuario: {{ rutina?.usuario?.name }}</h5>
+    </div>
+    
+    <div class="card-body">
+      <form [formGroup]="ejerciciosForm" (ngSubmit)="onSubmit()">
+        <div formArrayName="ejercicios">
+          @for (ejercicio of ejerciciosArray.controls; track i; let i = $index) {
+            <div class="card mb-3" [formGroupName]="i">
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Ejercicio *</label>
+                    <select formControlName="id" class="form-control">
+                      <option value="">Selecciona un ejercicio</option>
+                      @for (ej of ejerciciosDisponibles; track ej.id) {
+                        <option [value]="ej.id">{{ ej.nombre }} ({{ ej.grupo_muscular }})</option>
+                      }
+                    </select>
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <label class="form-label">Series *</label>
+                    <input type="number" formControlName="series" class="form-control" min="1">
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <label class="form-label">Repeticiones *</label>
+                    <input type="number" formControlName="repeticiones" class="form-control" min="1">
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <label class="form-label">Descanso (s) *</label>
+                    <input type="number" formControlName="descanso" class="form-control" min="0">
+                  </div>
+                  
+                  <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-danger w-100" 
+                            (click)="eliminarEjercicio(i)">
+                      Quitar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="d-flex gap-2 mb-4">
+          <button type="button" class="btn btn-outline-primary" (click)="agregarEjercicio()">
+            Agregar Ejercicio
+          </button>
+          
+          <button type="submit" 
+                  class="btn btn-success"
+                  [disabled]="ejerciciosForm.invalid || loading">
+            @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Guardar Ejercicios
+          </button>
+        </div>
+      </form>
+
+      <!-- Lista de ejercicios actualmente asignados -->
+      @if (ejerciciosAsignados.length > 0) {
+        <div class="mt-4">
+          <h5>Ejercicios Actualmente Asignados</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Ejercicio</th>
+                  <th>Series</th>
+                  <th>Repeticiones</th>
+                  <th>Descanso (s)</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (ejercicio of ejerciciosAsignados; track ejercicio.id) {
+                  <tr>
+                    <td>{{ ejercicio.nombre }}</td>
+                    <td>{{ ejercicio.pivot?.series }}</td>
+                    <td>{{ ejercicio.pivot?.repeticiones }}</td>
+                    <td>{{ ejercicio.pivot?.descanso }}</td>
+                    <td>
+                      <button type="button" class="btn btn-outline-danger btn-sm"
+                              (click)="confirmEliminarEjercicio(ejercicio)">
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (showDeleteModal) {
+  <app-confirm-modal 
+    [message]="'¿Estás seguro de que quieres eliminar este ejercicio de la rutina?'"
+    (confirm)="onEliminarConfirm()"
+    (cancel)="onEliminarCancel()">
+  </app-confirm-modal>
+}

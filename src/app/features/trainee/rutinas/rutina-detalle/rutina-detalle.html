@@ -1,0 +1,149 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Detalle de Rutina</h2>
+    <a routerLink="/trainee/rutinas" class="btn btn-outline-secondary">
+      Volver a mis rutinas
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else if (rutina) {
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">{{ rutina.nombre }}</h3>
+      </div>
+      <div class="card-body">
+        @if (rutina.descripcion) {
+          <p class="lead">{{ rutina.descripcion }}</p>
+        } @else {
+          <p class="text-muted">Sin descripción</p>
+        }
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Total de ejercicios:</strong> {{ rutina.ejercicios ? rutina.ejercicios.length : 0 }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ejercicios agrupados por grupo muscular -->
+    @if (tieneEjercicios()) {
+      @for (grupo of gruposMusculares | keyvalue; track grupo.key) {
+        <div class="card mb-4">
+          <div class="card-header bg-secondary text-white">
+            <h4 class="card-title mb-0 text-capitalize">{{ grupo.key }}</h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              @for (ejercicio of grupo.value; track ejercicio.id) {
+                <div class="col-lg-6 mb-3">
+                  <div class="card h-100">
+                    <div class="row g-0">
+                      @if (ejercicio.foto) {
+                        <div class="col-md-4">
+                          <img [src]="getFotoEjercicio(ejercicio)" 
+                               [alt]="ejercicio.nombre"
+                               class="img-fluid rounded-start h-100"
+                               style="object-fit: cover; max-height: 150px;">
+                        </div>
+                      }
+                      <div class="col-md-{{ ejercicio.foto ? '8' : '12' }}">
+                        <div class="card-body">
+                          <h5 class="card-title">{{ ejercicio.nombre }}</h5>
+                          <p class="card-text text-muted small">{{ ejercicio.descripcion }}</p>
+                          
+                          <div class="row text-center">
+                            <div class="col-4">
+                              <div class="border rounded p-2 bg-light">
+                                <strong class="d-block">{{ ejercicio.pivot.series }}</strong>
+                                <small class="text-muted">Series</small>
+                              </div>
+                            </div>
+                            <div class="col-4">
+                              <div class="border rounded p-2 bg-light">
+                                <strong class="d-block">{{ ejercicio.pivot.repeticiones }}</strong>
+                                <small class="text-muted">Reps</small>
+                              </div>
+                            </div>
+                            <div class="col-4">
+                              <div class="border rounded p-2 bg-light">
+                                <strong class="d-block">{{ ejercicio.pivot.descanso }}"</strong>
+                                <small class="text-muted">Descanso</small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Resumen de la rutina -->
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">Resumen de la Rutina</h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-3 mb-3">
+              <div class="border rounded p-3">
+                <h4 class="text-primary">{{ rutina.ejercicios.length }}</h4>
+                <small class="text-muted">Ejercicios Totales</small>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="border rounded p-3">
+                <h4 class="text-primary">{{ contarGruposMusculares() }}</h4>
+                <small class="text-muted">Grupos Musculares</small>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="border rounded p-3">
+                <h4 class="text-primary">
+                  {{ calcularTotalSeries() }}
+                </h4>
+                <small class="text-muted">Series Totales</small>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="border rounded p-3">
+                <h4 class="text-primary">
+                  {{ calcularTiempoEstimado() }} min
+                </h4>
+                <small class="text-muted">Tiempo Estimado</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <h4 class="text-muted">No hay ejercicios en esta rutina</h4>
+          <p class="text-muted">Tu entrenador aún no ha asignado ejercicios a esta rutina.</p>
+        </div>
+      </div>
+    }
+
+  } @else {
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <h4 class="text-muted">Rutina no encontrada</h4>
+        <p class="text-muted">La rutina que buscas no existe o no tienes acceso.</p>
+        <a routerLink="/trainee/rutinas" class="btn btn-primary">
+          Volver a mis rutinas
+        </a>
+      </div>
+    </div>
+  }
+</div>

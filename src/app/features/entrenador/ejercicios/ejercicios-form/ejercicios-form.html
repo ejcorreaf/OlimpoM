@@ -1,0 +1,99 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">{{ isEdit ? 'Editar Ejercicio' : 'Nuevo Ejercicio' }}</h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="ejercicioForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+            
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre *</label>
+              <input type="text" 
+                     id="nombre" 
+                     formControlName="nombre"
+                     class="form-control"
+                     [class.is-invalid]="ejercicioForm.get('nombre')?.invalid && ejercicioForm.get('nombre')?.touched">
+              @if (ejercicioForm.get('nombre')?.errors?.['required'] && ejercicioForm.get('nombre')?.touched) {
+                <div class="invalid-feedback">
+                  El nombre es obligatorio
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="grupo_muscular" class="form-label">Grupo Muscular *</label>
+              <select id="grupo_muscular" 
+                      formControlName="grupo_muscular"
+                      class="form-control"
+                      [class.is-invalid]="ejercicioForm.get('grupo_muscular')?.invalid && ejercicioForm.get('grupo_muscular')?.touched">
+                <option value="">Selecciona un grupo muscular</option>
+                @for (grupo of gruposMusculares; track grupo) {
+                  <option [value]="grupo">{{ grupo }}</option>
+                }
+              </select>
+              @if (ejercicioForm.get('grupo_muscular')?.errors?.['required'] && ejercicioForm.get('grupo_muscular')?.touched) {
+                <div class="invalid-feedback">
+                  El grupo muscular es obligatorio
+                </div>
+              }
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción</label>
+              <textarea id="descripcion" 
+                        formControlName="descripcion"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Describe cómo realizar el ejercicio..."></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="foto" class="form-label">Foto del Ejercicio</label>
+              <input type="file" 
+                     id="foto" 
+                     (change)="onFileSelected($event)"
+                     accept="image/*"
+                     class="form-control">
+              <div class="form-text">
+                Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 2MB.
+              </div>
+              
+              @if (previewUrl) {
+                <div class="mt-2">
+                  <img [src]="previewUrl" alt="Vista previa" class="img-thumbnail" style="max-width: 200px;">
+                </div>
+              }
+              
+              @if (currentFoto && !previewUrl) {
+                <div class="mt-2">
+                  <img [src]="'http://localhost:8000/ejercicios/' + currentFoto" 
+                       alt="Imagen actual" 
+                       class="img-thumbnail" 
+                       style="max-width: 200px;">
+                  <div class="form-text">Imagen actual</div>
+                </div>
+              }
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" 
+                      class="btn btn-primary"
+                      [disabled]="ejercicioForm.invalid || loading">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                }
+                {{ isEdit ? 'Actualizar' : 'Crear' }} Ejercicio
+              </button>
+              
+              <a routerLink="/entrenador/ejercicios" class="btn btn-secondary">
+                Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

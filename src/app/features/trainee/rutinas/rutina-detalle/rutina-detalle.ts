@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { RutinaTrainee, TraineeService } from '../../../../core/services/trainee';
+import { PdfService } from '../../../../core/services/pdf';
 
 @Component({
   selector: 'app-trainee-rutina-detalle',
@@ -11,10 +12,12 @@ import { RutinaTrainee, TraineeService } from '../../../../core/services/trainee
 })
 export class TraineeRutinaDetalleComponent implements OnInit {
   private traineeService = inject(TraineeService);
+  private pdfService = inject(PdfService);  
   private route = inject(ActivatedRoute);
   
   rutina: RutinaTrainee | null = null;
   loading = false;
+  generatingPdf = false;
   gruposMusculares: { [key: string]: any[] } = {};
 
   ngOnInit() {
@@ -38,6 +41,24 @@ export class TraineeRutinaDetalleComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  async descargarPdf() {
+    if (!this.rutina) return;
+
+    this.generatingPdf = true;
+    try {
+      // Opción 1: PDF personalizado (recomendado)
+      await this.pdfService.generarPdfRutinaPersonalizado(this.rutina);
+      
+      // Opción 2: PDF desde HTML (alternativa)
+      // await this.pdfService.generarPdfRutina(this.rutina, 'rutina-content');
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+      alert('Error al generar el PDF. Por favor, intenta nuevamente.');
+    } finally {
+      this.generatingPdf = false;
+    }
   }
 
   agruparPorGrupoMuscular(): { [key: string]: any[] } {

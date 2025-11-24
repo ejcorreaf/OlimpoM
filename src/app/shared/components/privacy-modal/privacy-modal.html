@@ -1,0 +1,48 @@
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="privacyModalLabel">Política de Privacidad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h6>1. Recopilación de Información</h6>
+        <p>Recopilamos información personal que usted nos proporciona voluntariamente al registrarse en nuestra aplicación, como nombre, email y contraseña.</p>
+
+        <h6>2. Uso de la Información</h6>
+        <p>Utilizamos su información para:</p>
+        <ul>
+          <li>Crear y gestionar su cuenta de usuario</li>
+          <li>Proporcionar los servicios de entrenamiento</li>
+          <li>Enviar notificaciones relacionadas con el servicio</li>
+          <li>Mejorar nuestra aplicación</li>
+        </ul>
+
+        <h6>3. Protección de Datos</h6>
+        <p>Implementamos medidas de seguridad para proteger su información personal contra accesos no autorizados, alteración, divulgación o destrucción.</p>
+
+        <h6>4. Cookies y Tecnologías Similares</h6>
+        <p>Utilizamos cookies para mejorar su experiencia en nuestra aplicación y para fines analíticos.</p>
+
+        <h6>5. Sus Derechos</h6>
+        <p>Usted tiene derecho a acceder, rectificar y suprimir sus datos personales. Puede contactarnos en cualquier momento para ejercer estos derechos.</p>
+
+        <h6>6. Cambios en la Política</h6>
+        <p>Nos reservamos el derecho de modificar esta política de privacidad en cualquier momento. Los cambios serán notificados a través de nuestra aplicación.</p>
+
+        <div class="form-check mt-4">
+          <input class="form-check-input" type="checkbox" id="acceptPrivacy" [formControl]="acceptControl">
+          <label class="form-check-label" for="acceptPrivacy">
+            He leído y acepto la política de privacidad
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" (click)="onAccept()" [disabled]="!acceptControl.value">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

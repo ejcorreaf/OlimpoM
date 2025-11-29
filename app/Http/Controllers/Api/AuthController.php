@@ -22,7 +22,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'dni' => 'required|string|size:9|unique:users',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:8|confirmed',
             'notes' => 'nullable|string',
         ]);
 
@@ -32,7 +32,7 @@ class AuthController extends Controller
             'dni' => $data['dni'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
-            'notes' => $validated['notes'] ?? null,
+            'notes' => $data['notes'] ?? null,
         ]);
 
         // Asignar el rol por defecto "trainee". Los admins serán quienes cambien los roles manualmente.
@@ -131,6 +131,29 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Photo updated',
             'photo_url' => $user->photo_url
+        ]);
+    }
+
+    /**
+     * UPDATE NOTES
+     *
+     * Permite actualizar las notas del usuario autenticado.
+     */
+    public function updateNotes(Request $request)
+    {
+        $request->validate([
+            'notes' => 'nullable|string',
+        ]);
+
+        $user = $request->user();
+        $user->notes = $request->notes;
+        $user->save();
+
+        $user->role = $user->getRoleNames()->first();
+
+        return response()->json([
+            'message' => 'Notes updated',
+            'user' => $user
         ]);
     }
 

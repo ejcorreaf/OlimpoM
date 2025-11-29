@@ -42,6 +42,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Subida de foto de perfil
     // ============================
     Route::post('/user/photo', [AuthController::class, 'updatePhoto']);
+
+    // ============================
+    // Actualizar notas del usuario
+    // ============================
+    Route::patch('/user/notes', [AuthController::class, 'updateNotes']);
 });
 
 /*

@@ -21,6 +21,31 @@
             <small class="text-danger">El usuario es obligatorio</small>
           }
 
+          <!-- DNI -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-card-text"></i>
+            </span>
+            <input
+              formControlName="dni"
+              class="form-control input-lg rounded-0"
+              placeholder="DNI (12345678X)"
+              maxlength="9"
+              appUppercase
+              appDniValidator>
+          </div>
+          @if (registerForm.get('dni')?.touched && registerForm.get('dni')?.invalid) {
+            @if (registerForm.get('dni')?.hasError('required')) {
+              <small class="text-danger">El DNI es obligatorio</small>
+            }
+            @if (registerForm.get('dni')?.hasError('dniFormat')) {
+              <small class="text-danger">Formato de DNI inválido (8 números + 1 letra)</small>
+            }
+            @if (registerForm.get('dni')?.hasError('dniInvalid')) {
+              <small class="text-danger">La letra del DNI no es correcta</small>
+            }
+          }
+
           <!-- Email -->
           <div class="input-group mb-2">
             <span class="input-group-text rounded-0 bg-grey">
@@ -33,12 +58,12 @@
           </div>
 
           @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
-            <small class="text-danger" *ngIf="registerForm.get('email')?.hasError('required')">
-              El email es obligatorio
-            </small>
-            <small class="text-danger" *ngIf="registerForm.get('email')?.hasError('email')">
-              Formato de email inválido
-            </small>
+            @if (registerForm.get('email')?.hasError('required')) {
+              <small class="text-danger">El email es obligatorio</small>
+            }
+            @if (registerForm.get('email')?.hasError('email')) {
+              <small class="text-danger">Formato de email inválido</small>
+            }
           }
 
           @if (registerForm.get('email')?.hasError('emailTaken')) {
@@ -60,6 +85,21 @@
             <small class="text-danger">La contraseña es obligatoria</small>
           }
 
+          <!-- Checkbox Política de Privacidad -->
+          <div class="form-check mb-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              formControlName="privacyPolicy"
+              id="privacyPolicy">
+            <label class="form-check-label" for="privacyPolicy">
+              Acepto la <a href="#" class="text-primary" (click)="openPrivacyPolicy($event)">política de privacidad</a>
+            </label>
+          </div>
+          @if (registerForm.get('privacyPolicy')?.touched && registerForm.get('privacyPolicy')?.invalid) {
+            <small class="text-danger">Debes aceptar la política de privacidad</small>
+          }
+
           <!-- Error general -->
           @if (errorRegistro) {
             <div class="mb-2">
@@ -78,4 +118,7 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal fuera del formulario para evitar problemas -->
+  <app-privacy-modal (accepted)="onPrivacyAccepted()" #privacyModal></app-privacy-modal>
 </div>

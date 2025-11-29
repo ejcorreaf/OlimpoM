@@ -17,16 +17,18 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // Validación de los datos recibidos
+        // Validación de los datos recibidos - AGREGAR DNI
         $data = $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'dni' => 'required|string|size:9|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
         ]);
 
-        // Creación del nuevo usuario
+        // Creación del nuevo usuario - AGREGAR DNI
         $user = User::create([
             'name' => $data['name'],
+            'dni' => $data['dni'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
@@ -48,6 +50,7 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+
 
     /**
      * LOGIN

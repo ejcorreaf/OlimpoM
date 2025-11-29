@@ -17,20 +17,22 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // Validación de los datos recibidos - AGREGAR DNI
+        // Validación de los datos recibidos
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'dni' => 'required|string|size:9|unique:users',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
+            'notes' => 'nullable|string',
         ]);
 
-        // Creación del nuevo usuario - AGREGAR DNI
+        // Creación del nuevo usuario
         $user = User::create([
             'name' => $data['name'],
             'dni' => $data['dni'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'notes' => $validated['notes'] ?? null,
         ]);
 
         // Asignar el rol por defecto "trainee". Los admins serán quienes cambien los roles manualmente.

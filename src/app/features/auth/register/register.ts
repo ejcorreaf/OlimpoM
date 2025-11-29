@@ -1,5 +1,5 @@
 import { Component, viewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
@@ -32,9 +32,21 @@ export class RegisterComponent {
       name: ['', Validators.required],      
       dni: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      password_confirmation: ['', [Validators.required, this.matchPasswordValidator.bind(this)]],
+      notes: [''],
       privacyPolicy: [false, Validators.requiredTrue]
     });
+  }
+
+  matchPasswordValidator(control: AbstractControl): ValidationErrors | null {
+    const password = this.registerForm?.get('password')?.value;
+    const confirmPassword = control.value;
+    
+    if (password !== confirmPassword) {
+      return { passwordMismatch: true };
+    }
+    return null;
   }
 
   register() {

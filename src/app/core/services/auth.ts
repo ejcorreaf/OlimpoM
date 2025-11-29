@@ -123,4 +123,13 @@ login(email: string, password: string): Observable<any> {
   get token(): string | null {
     return localStorage.getItem('token');
   }
+
+
+  /**
+ * Actualiza el usuario en el servicio y en localStorage
+ */
+  updateUser(updatedUser: any): void {
+    this._user.next(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  }
 }

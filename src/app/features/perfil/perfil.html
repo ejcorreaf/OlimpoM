@@ -14,8 +14,27 @@
 
       <hr>
 
+      <h5>Notas personales</h5>
+      <textarea
+        class="form-control mb-2"
+        [(ngModel)]="user.notes"
+        rows="4"
+        placeholder="Añade notas sobre ti (alergias, enfermedades, observaciones...)"></textarea>
+      <small class="text-muted">Esta información solo es visible para ti y los administradores.</small>
+      <br>
+      <button class="btn btn-secondary mt-2" (click)="updateNotes()">Guardar notas</button>
+
+      <hr>
+
+      <h5>Foto de perfil</h5>
       <input type="file" (change)="onFileSelected($event)">
       <button class="btn btn-primary mt-2" (click)="upload()">Subir foto</button>
     </div>
   }
+
+  <!-- Modal de éxito -->
+  <app-success-modal 
+    message="Nota actualizada exitosamente." 
+    #successModal>
+  </app-success-modal>
 </div>

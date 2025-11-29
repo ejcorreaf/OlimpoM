@@ -82,8 +82,41 @@
               placeholder="Contraseña">
           </div>
           @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
-            <small class="text-danger">La contraseña es obligatoria</small>
+            <small class="text-danger">La contraseña es obligatoria (mínimo 8 caracteres)</small>
           }
+
+          <!-- Repetir Contraseña -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-key-fill"></i>
+            </span>
+            <input
+              type="password"
+              formControlName="password_confirmation"
+              class="form-control input-lg rounded-0"
+              placeholder="Repetir contraseña">
+          </div>
+          @if (registerForm.get('password_confirmation')?.touched && registerForm.get('password_confirmation')?.invalid) {
+            @if (registerForm.get('password_confirmation')?.hasError('required')) {
+              <small class="text-danger">Debes repetir la contraseña</small>
+            }
+            @if (registerForm.get('password_confirmation')?.hasError('passwordMismatch')) {
+              <small class="text-danger">Las contraseñas no coinciden</small>
+            }
+          }
+
+          <!-- Notas -->
+          <div class="input-group mb-2">
+            <span class="input-group-text rounded-0 bg-grey">
+              <i class="bi bi-pencil"></i>
+            </span>
+            <textarea
+              formControlName="notes"
+              class="form-control input-lg rounded-0"
+              rows="3"
+              placeholder="Notas opcionales (alergias, enfermedades, observaciones...)"></textarea>
+          </div>
+          <small class="text-muted">Esta información solo será visible para ti y los administradores.</small>
 
           <!-- Checkbox Política de Privacidad -->
           <div class="form-check mb-3">

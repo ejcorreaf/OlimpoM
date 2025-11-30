@@ -8,84 +8,144 @@
         <div class="card-body">
           <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()">
             
+            <!-- Campo Nombre -->
             <div class="mb-3">
               <label for="name" class="form-label">Nombre *</label>
               <input type="text" 
                      id="name" 
                      formControlName="name"
                      class="form-control"
-                     [class.is-invalid]="usuarioForm.get('name')?.invalid && usuarioForm.get('name')?.touched">
-              @if (usuarioForm.get('name')?.errors?.['required'] && usuarioForm.get('name')?.touched) {
+                     [class.is-invalid]="hasError('name', 'required') || hasError('name', 'minlength')">
+              @if (hasError('name', 'required')) {
                 <div class="invalid-feedback">
                   El nombre es obligatorio
                 </div>
               }
+              @if (hasError('name', 'minlength')) {
+                <div class="invalid-feedback">
+                  El nombre debe tener al menos 2 caracteres
+                </div>
+              }
             </div>
 
+            <!-- Campo Email -->
             <div class="mb-3">
               <label for="email" class="form-label">Email *</label>
               <input type="email" 
                      id="email" 
                      formControlName="email"
                      class="form-control"
-                     [class.is-invalid]="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched">
-              @if (usuarioForm.get('email')?.errors?.['required'] && usuarioForm.get('email')?.touched) {
+                     [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')">
+              @if (hasError('email', 'required')) {
                 <div class="invalid-feedback">
                   El email es obligatorio
                 </div>
               }
-              @if (usuarioForm.get('email')?.errors?.['email'] && usuarioForm.get('email')?.touched) {
+              @if (hasError('email', 'email')) {
                 <div class="invalid-feedback">
                   Debe ser un email válido
                 </div>
               }
             </div>
 
+            <!-- Campo DNI (OPCIONAL) -->
+            <div class="mb-3">
+              <label for="dni" class="form-label">DNI</label>
+              <input type="text" 
+                     id="dni" 
+                     formControlName="dni"
+                     class="form-control"
+                     placeholder="Opcional">
+              <small class="form-text text-muted">
+                Campo opcional para el administrador
+              </small>
+            </div>
+
+            <!-- Campo Contraseña con Toggle -->
             <div class="mb-3">
               <label for="password" class="form-label">
-                {{ isEdit ? 'Nueva Contraseña (dejar en blanco para no cambiar)' : 'Contraseña *' }}
+                {{ isEdit ? 'Contraseña' : 'Contraseña *' }}
               </label>
-              <input type="password" 
-                     id="password" 
-                     formControlName="password"
-                     class="form-control"
-                     [class.is-invalid]="usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched">
-              @if (usuarioForm.get('password')?.errors?.['required'] && usuarioForm.get('password')?.touched) {
-                <div class="invalid-feedback">
-                  La contraseña es obligatoria
+              <div class="input-group">
+                <input [type]="showPassword ? 'text' : 'password'" 
+                       id="password" 
+                       formControlName="password"
+                       class="form-control"
+                       [class.is-invalid]="hasError('password', 'required') || hasError('password', 'minlength')"
+                       [placeholder]="isEdit ? 'Dejar vacío para no cambiar' : 'Ingresa la contraseña'">
+                <button type="button" 
+                        class="btn btn-outline-secondary"
+                        (click)="togglePasswordVisibility()"
+                        title="{{ showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña' }}">
+                  @if (showPassword) {
+                    <i class="bi bi-eye-slash"></i> Ocultar
+                  } @else {
+                    <i class="bi bi-eye"></i> Mostrar
+                  }
+                </button>
+              </div>
+              @if (hasError('password', 'required')) {
+                <div class="invalid-feedback d-block">
+                  La contraseña es obligatoria para nuevos usuarios
                 </div>
+              }
+              @if (hasError('password', 'minlength')) {
+                <div class="invalid-feedback d-block">
+                  La contraseña debe tener al menos 8 caracteres
+                </div>
+              }
+              @if (isEdit) {
+                <small class="form-text text-muted">
+                  Dejar vacío para mantener la contraseña actual
+                </small>
               }
             </div>
 
-            <div class="mb-3">
-              <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
-              <input type="password" 
-                     id="password_confirmation" 
-                     formControlName="password_confirmation"
-                     class="form-control">
-            </div>
-
+            <!-- Campo Rol -->
             <div class="mb-3">
               <label for="role" class="form-label">Rol *</label>
               <select id="role" 
                       formControlName="role"
                       class="form-control"
-                      [class.is-invalid]="usuarioForm.get('role')?.invalid && usuarioForm.get('role')?.touched">
+                      [class.is-invalid]="hasError('role', 'required')">
                 @for (rol of roles; track rol.value) {
                   <option [value]="rol.value">{{ rol.label }}</option>
                 }
               </select>
-              @if (usuarioForm.get('role')?.errors?.['required'] && usuarioForm.get('role')?.touched) {
+              @if (hasError('role', 'required')) {
                 <div class="invalid-feedback">
                   El rol es obligatorio
                 </div>
               }
             </div>
 
+            <!-- Campo Email Verificado -->
+            <div class="mb-3 form-check">
+              <input type="checkbox" 
+                     id="email_verified" 
+                     formControlName="email_verified"
+                     class="form-check-input">
+              <label for="email_verified" class="form-check-label">
+                Email verificado
+              </label>
+              <small class="form-text text-muted d-block">
+                Marca esta casilla para verificar el email manualmente. 
+                Útil para usuarios que no han podido verificar su email.
+              </small>
+            </div>
+
+            <!-- ✅ NUEVO: Mensaje de error general -->
+            @if (errorMessage) {
+              <div class="alert alert-danger mt-3">
+                {{ errorMessage }}
+              </div>
+            }
+
+            <!-- Botones -->
             <div class="d-flex gap-2">
               <button type="submit" 
                       class="btn btn-primary"
-                      [disabled]="usuarioForm.invalid || loading">
+                      [disabled]="loading">
                 @if (loading) {
                   <span class="spinner-border spinner-border-sm me-2"></span>
                 }

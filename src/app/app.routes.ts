@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { roleGuard } from './core/guards/role-guard';
+import { emailVerifiedGuard } from './core/guards/email-verified-guard';
 
 export const routes: Routes = [
   { 
@@ -14,6 +15,11 @@ export const routes: Routes = [
   { 
     path: 'register', 
     loadComponent: () => import('./features/auth/register/register').then(m => m.RegisterComponent) 
+  },
+
+  { 
+    path: 'email-verified', 
+    loadComponent: () => import('./features/auth/email-verified/email-verified').then(m => m.EmailVerifiedComponent) 
   },
 
   {
@@ -82,7 +88,7 @@ export const routes: Routes = [
   // Rutas para Entrenador
   {
     path: 'entrenador',
-    canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, roleGuard, emailVerifiedGuard],
     data: { role: 'trainer' },
     children: [
       // Home de entrenador
@@ -126,7 +132,7 @@ export const routes: Routes = [
   // Rutas para Trainee
   {
     path: 'trainee',
-    canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard, roleGuard, emailVerifiedGuard],
     data: { role: 'trainee' },
     children: [
       // Home de trainee

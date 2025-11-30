@@ -6,10 +6,13 @@ export interface Usuario {
   id: number;
   name: string;
   email: string;
+  dni?: string;
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
-  roles?: string[];
+  roles?: any[]; // CAMBIO: any[] en lugar de string[]
+  role?: string; // NUEVO: propiedad role que viene del backend
+  email_verified?: boolean; // NUEVO: para verificación manual
 }
 
 export interface Ejercicio {
@@ -71,7 +74,16 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/usuarios/${id}`);
   }
 
-  // Ejercicios
+  // NUEVOS MÉTODOS: Verificación manual de email
+  verifyEmail(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/usuarios/${id}/verify-email`, {});
+  }
+
+  resendVerificationEmail(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/usuarios/${id}/resend-verification`, {});
+  }
+
+  // Ejercicios (SIN CAMBIOS)
   getEjercicios(): Observable<Ejercicio[]> {
     return this.http.get<Ejercicio[]>(`${this.apiUrl}/ejercicios`);
   }
@@ -92,7 +104,7 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/ejercicios/${id}`);
   }
 
-  // Rutinas
+  // Rutinas (SIN CAMBIOS)
   getRutinas(search?: string): Observable<any> {
     let params = new HttpParams();
     if (search) {
@@ -117,7 +129,7 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/rutinas/${id}`);
   }
 
-  // Ejercicios de Rutinas
+  // Ejercicios de Rutinas (SIN CAMBIOS)
   getEjerciciosRutina(rutinaId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/rutinas/${rutinaId}/ejercicios`);
   }
@@ -134,7 +146,7 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/rutinas/${rutinaId}/ejercicios/${ejercicioId}`);
   }
 
-  // Trainees y Trainers
+  // Trainees y Trainers (SIN CAMBIOS)
   getTrainees(): Observable<Trainee[]> {
     return this.http.get<Trainee[]>(`${this.apiUrl}/trainees`);
   }

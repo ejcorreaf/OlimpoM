@@ -1,6 +1,27 @@
 <div class="container mt-3">
   <h2>Mi Perfil</h2>
 
+  <!-- Alerta de verificación de email -->
+  @if (needsEmailVerification()) {
+    <div class="alert alert-warning">
+      <h5>⚠ Verificación de Email Requerida</h5>
+      <p>Para acceder a todas las funcionalidades de tu cuenta, necesitas verificar tu dirección de email.</p>
+      
+      @if (resendSuccess) {
+        <div class="alert alert-success mt-2">
+          ✅ Email de verificación reenviado. Revisa tu bandeja de entrada.
+        </div>
+      }
+      
+      <button 
+        class="btn btn-primary mt-2" 
+        (click)="resendVerificationEmail()"
+        [disabled]="resendingEmail">
+        {{ resendingEmail ? 'Enviando...' : 'Reenviar Email de Verificación' }}
+      </button>
+    </div>
+  }
+
   @if (user) {
     <div>
       <img
@@ -11,6 +32,13 @@
       <p><strong>Nombre:</strong> {{ user.name }}</p>
       <p><strong>Email:</strong> {{ user.email }}</p>
       <p><strong>Rol:</strong> {{ getUserRole() }}</p>
+      <p><strong>Email verificado:</strong> 
+        @if (user.email_verified_at || user.email_verified) {
+          <span class="badge bg-success">Verificado</span>
+        } @else {
+          <span class="badge bg-warning">Pendiente</span>
+        }
+      </p>
 
       <hr>
 

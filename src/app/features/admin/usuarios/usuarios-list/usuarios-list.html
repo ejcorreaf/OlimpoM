@@ -23,6 +23,7 @@
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Rol</th>
+                <th>Email Verificado</th>
                 <th>Fecha Registro</th>
                 <th>Acciones</th>
               </tr>
@@ -40,6 +41,13 @@
                       {{ getRol(usuario) }}
                     </span>
                   </td>
+                  <td>
+                    @if (usuario.email_verified_at || usuario.email_verified) {
+                      <span class="badge bg-success">✅ Verificado</span>
+                    } @else {
+                      <span class="badge bg-warning">❌ Pendiente</span>
+                    }
+                  </td>
                   <td>{{ usuario.created_at | date:'dd/MM/yyyy' }}</td>
                   <td>
                     <div class="btn-group btn-group-sm">
@@ -47,6 +55,7 @@
                          class="btn btn-outline-primary">
                         Editar
                       </a>
+                      
                       <button (click)="confirmDelete(usuario)" 
                               class="btn btn-outline-danger">
                         Eliminar
@@ -57,7 +66,7 @@
               }
               @if (usuarios.length === 0) {
                 <tr>
-                  <td colspan="6" class="text-center text-muted">
+                  <td colspan="7" class="text-center text-muted">
                     No hay usuarios registrados
                   </td>
                 </tr>

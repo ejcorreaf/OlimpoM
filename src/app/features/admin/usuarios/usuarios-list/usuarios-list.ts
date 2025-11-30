@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { ConfirmModalComponent } from '../../../../shared/components/confirm-modal/confirm-modal';
 import { AdminService, Usuario } from '../../../../core/services/admin';
 
-
 @Component({
   selector: 'app-admin-usuarios-list',
   standalone: true,
@@ -38,7 +37,16 @@ export class AdminUsuariosListComponent implements OnInit {
   }
 
   getRol(usuario: Usuario): string {
-    return usuario.roles?.[0] || 'Sin rol';
+    if (usuario.role) {
+      return usuario.role;
+    }
+    
+    if (usuario.roles && usuario.roles.length > 0) {
+      const firstRole = usuario.roles[0];
+      return typeof firstRole === 'string' ? firstRole : firstRole.name || 'Sin rol';
+    }
+    
+    return 'Sin rol';
   }
 
   confirmDelete(usuario: Usuario) {

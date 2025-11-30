@@ -8,7 +8,7 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   return auth.user$.pipe(
-    take(1), // Espera al primer valor real
+    take(1),
     map(user => !!user),
     tap(isLogged => {
       if (!isLogged) {

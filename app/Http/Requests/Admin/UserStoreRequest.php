@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UserStoreRequest extends FormRequest
 {
@@ -15,10 +14,13 @@ class UserStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => ['required','string','max:255'],
-            'email'    => ['required','email','unique:users,email'],
-            'password' => ['required','string','min:6'],
-            'role'     => ['required', Rule::in(['admin','trainer','trainee'])],
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8|confirmed',
+            'role' => 'required|in:admin,trainer,trainee',
+            'dni' => 'nullable|string|size:9|unique:users', // CORREGIDO: nullable
+            'notes' => 'nullable|string',
+            'email_verified' => 'sometimes|boolean'
         ];
     }
 }

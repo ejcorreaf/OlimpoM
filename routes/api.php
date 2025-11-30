@@ -31,12 +31,27 @@ Route::middleware('auth:sanctum')->group(function () {
     // Obtener usuario autenticado
     Route::get('/user', function (Request $r) {
         $user = $r->user();
+
+        // Cargar relaciones necesarias
+        $user->load('roles');
+
+        // Usar Laravel Permission correctamente
         $user->role = $user->getRoleNames()->first();
+        $user->email_verified = $user->hasVerifiedEmail();
+        $user->needs_email_verification = $user->hasRole('trainee') && !$user->hasVerifiedEmail();
+
         return $user;
     });
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
+
+
+    // Verificación de email
+    Route::get('/email/verification-status', [AuthController::class, 'checkEmailVerification']);
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail']);
+
+
 
     // ============================
     // Subida de foto de perfil
@@ -49,33 +64,37 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user/notes', [AuthController::class, 'updateNotes']);
 });
 
-/*
 // ============================
-// Verificación de Email
+// Verificación de Email - VERSIÓN CORREGIDA
 // ============================
 
-// Reenviar email de verificación
-Route::post('/email/verification-notification', function (Request $request) {
-    if ($request->user()->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email ya verificado']);
+Route::get('/verify-email/{id}/{hash}', function ($id, $hash) {
+    // Buscar el usuario directamente
+    $user = \App\Models\User::find($id);
+
+    if (!$user) {
+        return redirect(env('FRONTEND_URL', 'http://localhost:4200') . '/email-verified?verified=0&error=user_not_found');
     }
 
-    $request->user()->sendEmailVerificationNotification();
+    // Verificar el hash
+    if (!hash_equals($hash, sha1($user->getEmailForVerification()))) {
+        return redirect(env('FRONTEND_URL', 'http://localhost:4200') . '/email-verified?verified=0&error=invalid_hash');
+    }
 
-    return response()->json(['message' => 'Email enviado']);
-});
+    if ($user->hasVerifiedEmail()) {
+        return redirect(env('FRONTEND_URL', 'http://localhost:4200') . '/email-verified?verified=1&message=already_verified');
+    }
 
-// Validación del email desde el enlace del correo
-Route::get('/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();  // Marca el email como verificado
-    return redirect('http://localhost:4200/email-verified');
+    // Marcar como verificado
+    $user->markEmailAsVerified();
+
+    return redirect(env('FRONTEND_URL', 'http://localhost:4200') . '/email-verified?verified=1&success=true');
 })->name('verification.verify');
-*/
 
 // =====================================================
 // RUTAS ENTRENADOR (role:trainer)
 // =====================================================
-Route::middleware(['auth:sanctum', 'role:trainer'])
+Route::middleware(['auth:sanctum', 'role:trainer', 'verified'])
     ->prefix('entrenador')
     ->group(function () {
 
@@ -94,7 +113,7 @@ Route::middleware(['auth:sanctum', 'role:trainer'])
 // =====================================================
 // RUTAS TRAINEE (role:trainee)
 // =====================================================
-Route::middleware(['auth:sanctum', 'role:trainee'])
+Route::middleware(['auth:sanctum', 'role:trainee', 'verified'])
     ->prefix('trainee')
     ->group(function () {
         Route::get('/rutinas', [RutinasTraineeController::class, 'index']);

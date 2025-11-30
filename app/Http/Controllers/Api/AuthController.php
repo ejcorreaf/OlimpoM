@@ -11,13 +11,9 @@ class AuthController extends Controller
 {
     /**
      * REGISTRO DE USUARIO
-     *
-     * Crea un nuevo usuario con el rol por defecto "trainee".
-     * Devuelve un token de acceso y los datos del usuario.
      */
     public function register(Request $request)
     {
-        // Validación de los datos recibidos
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'dni' => 'required|string|size:9|unique:users',
@@ -26,7 +22,6 @@ class AuthController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Creación del nuevo usuario
         $user = User::create([
             'name' => $data['name'],
             'dni' => $data['dni'],
@@ -35,86 +30,96 @@ class AuthController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        // Asignar el rol por defecto "trainee". Los admins serán quienes cambien los roles manualmente.
         $user->assignRole('trainee');
 
-        /*
-        * Enviar email de verificación
-        * $user->sendEmailVerificationNotification();
-        */
+        // SOLO enviar email de verificación para trainees
+        if ($user->hasRole('trainee')) {
+            $user->sendEmailVerificationNotification();
+        }
 
-        // Crear token personal de acceso (Sanctum)
         $token = $user->createToken('api')->plainTextToken;
 
-        // Respuesta JSON con token y usuario
         return response()->json([
             'token' => $token,
-            'user' => $user
+            'user' => $user,
+            'message' => $user->hasRole('trainee')
+                ? 'Usuario registrado. Por favor, verifica tu email.'
+                : 'Usuario registrado correctamente.'
         ]);
     }
 
-
     /**
-     * LOGIN
-     *
-     * Este método valida las credenciales de un usuario,
-     * genera un token Sanctum si son correctas
-     * y devuelve la información del usuario y sus roles.
+     * LOGIN - CORREGIDO
      */
     public function login(Request $request)
     {
-        // Validar credenciales recibidas
         $data = $request->validate([
-            'email'=>'required|email',
-            'password'=>'required'
+            'email' => 'required|email',
+            'password' => 'required'
         ]);
 
-        // Mensaje de error si las credenciales son incorrectas
         if (!Auth::attempt($data)) {
             return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
 
-        /**
-         * Recuperar usuario autenticado
-         * @var \App\Models\User $user
-         */
         $user = Auth::user();
 
-        /**
-        *if (!$user->hasVerifiedEmail()) {
-        *    return response()->json([
-        *        'message' => 'Debes verificar tu correo electrónico antes de iniciar sesión.'
-        *], 403);
-        *}
-        */
 
-        // Generar token de acceso
+
         $token = $user->createToken('api')->plainTextToken;
 
-        // Devolver token, datos y roles
+        // Asegurarnos de cargar los roles
+        $user->load('roles');
+        $user->role = $user->getRoleNames()->first();
+
         return response()->json([
-            'token'=>$token,
-            'user'=>$user,
-            'roles'=>$user->getRoleNames()]);
+            'token' => $token,
+            'user' => $user,
+            'roles' => $user->getRoleNames()
+        ]);
     }
 
     /**
-     * LOGOUT
-     *
-     * Elimina el token actual de acceso del usuario autenticado.
-     * (Solo cierra la sesión actual, no todas.)
+     * REENVIAR EMAIL DE VERIFICACIÓN - CORREGIDO
      */
+    public function resendVerificationEmail(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email ya verificado']);
+        }
+
+        // Solo permitir reenviar si el usuario es trainee
+        if (!$user->hasRole('trainee')) {
+            return response()->json(['message' => 'Tu rol no requiere verificación de email'], 400);
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Email de verificación reenviado']);
+    }
+
+    /**
+     * VERIFICAR ESTADO DE EMAIL - CORREGIDO
+     */
+    public function checkEmailVerification(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'email_verified' => $user->hasVerifiedEmail(),
+            'needs_verification' => $user->hasRole('trainee') && !$user->hasVerifiedEmail()
+        ]);
+    }
+
+    // Los demás métodos se mantienen igual...
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json(['message'=>'Logout ok']);
     }
 
-    /**
-     * UpdatePhoto
-     *
-     * Permite cambiar la foto de perfil del usuario autenticado.
-     */
     public function updatePhoto(Request $request)
     {
         $request->validate([
@@ -134,11 +139,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * UPDATE NOTES
-     *
-     * Permite actualizar las notas del usuario autenticado.
-     */
     public function updateNotes(Request $request)
     {
         $request->validate([
@@ -149,6 +149,7 @@ class AuthController extends Controller
         $user->notes = $request->notes;
         $user->save();
 
+        // Cargar el rol para la respuesta
         $user->role = $user->getRoleNames()->first();
 
         return response()->json([
@@ -156,5 +157,4 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
-
 }

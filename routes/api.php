@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminAsignacionController;
 use App\Http\Controllers\Api\Admin\AdminEjerciciosController;
 use App\Http\Controllers\Api\Admin\AdminRutinasController;
 use App\Http\Controllers\Api\Admin\AdminUsuariosController;
+use App\Http\Controllers\Api\Entrenador\TraineesController;
+use App\Http\Controllers\Api\MensajeController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +67,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user/notes', [AuthController::class, 'updateNotes']);
 });
 
+// =====================================================
+// RUTAS MENSAJES (usuarios verificados)
+// =====================================================
+Route::middleware(['auth:sanctum', 'verified'])
+    ->prefix('mensajes')
+    ->group(function () {
+        Route::get('/conversaciones', [MensajeController::class, 'getConversaciones']);
+        Route::get('/conversacion/{userId}', [MensajeController::class, 'getConversacion']);
+        Route::post('/enviar', [MensajeController::class, 'enviarMensaje']);
+    });
+
 // ============================
 // Verificación de Email - VERSIÓN CORREGIDA
 // ============================
@@ -106,7 +120,8 @@ Route::middleware(['auth:sanctum', 'role:trainer', 'verified'])
         Route::put('/rutinas/{rutina}/ejercicios', [RutinasController::class, 'sincronizarEjercicios']);
         Route::delete('/rutinas/{rutina}/ejercicios/{ejercicioId}', [RutinasController::class, 'eliminarEjercicio']);
 
-        Route::get('/trainees', [RutinasController::class,'trainees']);
+        // SOLO ESTA RUTA - la misma para todo
+        Route::get('/trainees', [RutinasController::class, 'trainees']);
     });
 
 
@@ -139,4 +154,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])
 
         Route::get('/trainees', [AdminUsuariosController::class, 'trainees']);
         Route::get('/trainers', [AdminUsuariosController::class, 'trainers']);
+
+        Route::prefix('asignaciones')->group(function () {
+            Route::get('/', [AdminAsignacionController::class, 'index']);
+            Route::get('/trainees-no-asignados', [AdminAsignacionController::class, 'traineesNoAsignados']);
+            Route::get('/entrenadores', [AdminAsignacionController::class, 'entrenadores']);
+            Route::post('/', [AdminAsignacionController::class, 'store']);
+            Route::delete('/{entrenadorId}/{traineeId}', [AdminAsignacionController::class, 'destroy']);
+        });
     });

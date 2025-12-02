@@ -17,11 +17,41 @@ class RutinasController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->get('search', '');
-        $rutinas = Rutina::with('usuario')
-            ->when($search, fn($q) => $q->whereHas('usuario', fn($u) => $u->where('name','like',"%$search%")))
-            ->paginate(10);
-        return response()->json($rutinas);
+        try {
+            $search = $request->get('search', '');
+            $entrenador = auth()->user();
+
+            // Obtener IDs de los trainees asignados
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
+
+            // Si no tiene trainees asignados, devolver array vacío
+            if (empty($traineeIds)) {
+                return response()->json([
+                    'data' => [],
+                    'current_page' => 1,
+                    'total' => 0,
+                    'per_page' => 10
+                ]);
+            }
+
+            $rutinas = Rutina::with('usuario:id,name,email')
+                ->whereIn('user_id', $traineeIds) // Solo rutinas de trainees asignados
+                ->when($search, function($q) use ($search) {
+                    return $q->whereHas('usuario', function($u) use ($search) {
+                        $u->where('name','like',"%{$search}%");
+                    });
+                })
+                ->paginate(10);
+
+            return response()->json($rutinas);
+
+        } catch (\Exception $e) {
+            \Log::error('Error en RutinasController@index: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al cargar las rutinas',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -31,11 +61,31 @@ class RutinasController extends Controller
     public function store(RutinasStoreRequest $request)
     {
         $data = $request->validated();
-        $user = User::where('email', $data['email'])->first();
-        if (!$user) return response()->json(['message'=>'Usuario no encontrado'], 404);
+        $entrenador = auth()->user();
+
+        // Buscar el trainee por email
+        $trainee = User::where('email', $data['email'])->first();
+
+        if (!$trainee) {
+            return response()->json(['message' => 'Trainee no encontrado'], 404);
+        }
+
+        // Verificar que el trainee tenga rol 'trainee'
+        if (!$trainee->hasRole('trainee')) {
+            return response()->json(['message' => 'El usuario debe ser un trainee'], 422);
+        }
+
+        // Verificar que el trainee esté asignado a este entrenador
+        $estaAsignado = $entrenador->traineesAsignados()
+            ->where('id', $trainee->id)
+            ->exists();
+
+        if (!$estaAsignado) {
+            return response()->json(['message' => 'Este trainee no está asignado a ti'], 403);
+        }
 
         $rutina = Rutina::create([
-            'user_id' => $user->id,
+            'user_id' => $trainee->id,
             'nombre' => $data['nombre'],
             'descripcion' => $data['descripcion'] ?? null,
         ]);
@@ -155,12 +205,17 @@ class RutinasController extends Controller
 
 
     /**
-     * Devuelve todos los usuarios con el rol "trainee".
-     * Útil para el entrenador al crear o asignar rutinas.
+     * Devuelve todos los trainees asignados al entrenador autenticado.
      */
     public function trainees()
     {
-        $trainees = User::role('trainee')->select('name','email')->get();
+        $entrenador = auth()->user();
+
+        // ESPECIFICA LA TABLA en el select
+        $trainees = $entrenador->traineesAsignados()
+            ->select('users.id', 'users.name', 'users.email', 'users.photo_url')
+            ->get();
+
         return response()->json($trainees);
     }
 }

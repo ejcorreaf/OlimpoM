@@ -31,7 +31,10 @@
             <a class="nav-link" routerLink="/entrenador/rutinas">Rutinas</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" routerLink="/entrenador/trainees">Trainees</a>
+            <a class="nav-link" routerLink="/entrenador/trainees">Mis Trainees</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/entrenador/chat">Chat</a>
           </li>
         }
 
@@ -39,6 +42,9 @@
         @if (auth.getUserRole() === 'trainee') {
           <li class="nav-item">
             <a class="nav-link" routerLink="/trainee/rutinas">Mis rutinas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/trainee/chat">Chat con Entrenador</a>
           </li>
         }
         
@@ -52,6 +58,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/admin/rutinas">Rutinas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/admin/asignaciones">Asignaciones</a>
           </li>
         }
       </ul>

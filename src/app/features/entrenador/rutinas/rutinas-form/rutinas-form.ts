@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { EntrenadorService, Trainee } from '../../../../core/services/entrenador';
+import { EntrenadorService} from '../../../../core/services/entrenador';
+import { Trainee } from '../../../../core/services/admin';
 
 
 @Component({
@@ -44,11 +45,18 @@ export class RutinaFormComponent implements OnInit {
   }
 
   loadTrainees() {
-    this.entrenadorService.getTrainees().subscribe({
-      next: (trainees) => this.trainees = trainees,
-      error: (error) => console.error('Error loading trainees:', error)
-    });
-  }
+  this.loading = true;
+  this.entrenadorService.getTrainees().subscribe({ // SOLO getTrainees()
+    next: (trainees) => {
+      this.trainees = trainees;
+      this.loading = false;
+    },
+    error: (error) => {
+      console.error('Error loading trainees:', error);
+      this.loading = false;
+    }
+  });
+}
 
   loadRutina(id: number) {
     this.entrenadorService.getRutina(id).subscribe({

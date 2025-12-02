@@ -19,14 +19,13 @@ export class MenuComponent {
   
 
 constructor() {
-    // Esto debería detectar cambios cuando _user.next() se llama
     this.auth.user$.subscribe(u => {
-      console.log('Usuario actualizado en menu:', u); // Para debug 
+      console.log('Usuario actualizado en menu:', u);
       this.user = u;
     });
   }
 
-  ngOnInit() { // ✅ Mueve la suscripción aquí
+  ngOnInit() {
     this.auth.user$.subscribe(u => {
       console.log('Usuario actualizado en menu:', u);
       this.user = u;

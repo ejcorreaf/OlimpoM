@@ -10,9 +10,10 @@ export interface Usuario {
   email_verified_at: string | null;
   created_at: string;
   updated_at: string;
-  roles?: any[]; // CAMBIO: any[] en lugar de string[]
-  role?: string; // NUEVO: propiedad role que viene del backend
-  email_verified?: boolean; // NUEVO: para verificación manual
+  roles?: any[];
+  role?: string;
+  email_verified?: boolean;
+  photo_url?: string;
 }
 
 export interface Ejercicio {
@@ -37,13 +38,38 @@ export interface Rutina {
 }
 
 export interface Trainee {
+  id: number; // AÑADIDO
   name: string;
   email: string;
+  photo_url?: string; // AÑADIDO
 }
 
 export interface Trainer {
+  id: number; // AÑADIDO
   name: string;
   email: string;
+  photo_url?: string; // AÑADIDO
+}
+
+// NUEVAS INTERFACES PARA ASIGNACIONES
+export interface Entrenador {
+  id: number;
+  name: string;
+  email: string;
+  trainees_asignados?: Trainee[];
+}
+
+export interface AsignacionRequest {
+  entrenador_id: number;
+  trainee_id: number;
+}
+
+// Interfaz para trainees asignados (compatible con entrenador service)
+export interface TraineeAsignado {
+  id: number;
+  name: string;
+  email: string;
+  photo_url?: string;
 }
 
 @Injectable({
@@ -83,7 +109,7 @@ export class AdminService {
     return this.http.post(`${this.apiUrl}/usuarios/${id}/resend-verification`, {});
   }
 
-  // Ejercicios (SIN CAMBIOS)
+  // Ejercicios
   getEjercicios(): Observable<Ejercicio[]> {
     return this.http.get<Ejercicio[]>(`${this.apiUrl}/ejercicios`);
   }
@@ -104,7 +130,7 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/ejercicios/${id}`);
   }
 
-  // Rutinas (SIN CAMBIOS)
+  // Rutinas
   getRutinas(search?: string): Observable<any> {
     let params = new HttpParams();
     if (search) {
@@ -129,7 +155,7 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/rutinas/${id}`);
   }
 
-  // Ejercicios de Rutinas (SIN CAMBIOS)
+  // Ejercicios de Rutinas
   getEjerciciosRutina(rutinaId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/rutinas/${rutinaId}/ejercicios`);
   }
@@ -146,12 +172,36 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/rutinas/${rutinaId}/ejercicios/${ejercicioId}`);
   }
 
-  // Trainees y Trainers (SIN CAMBIOS)
+  // Trainees y Trainers
   getTrainees(): Observable<Trainee[]> {
     return this.http.get<Trainee[]>(`${this.apiUrl}/trainees`);
   }
 
   getTrainers(): Observable<Trainer[]> {
     return this.http.get<Trainer[]>(`${this.apiUrl}/trainers`);
+  }
+
+  // ============================================
+  // NUEVOS MÉTODOS PARA GESTIÓN DE ASIGNACIONES
+  // ============================================
+
+  getAsignaciones(): Observable<Entrenador[]> {
+    return this.http.get<Entrenador[]>(`${this.apiUrl}/asignaciones`);
+  }
+
+  getTraineesNoAsignados(): Observable<TraineeAsignado[]> {
+    return this.http.get<TraineeAsignado[]>(`${this.apiUrl}/asignaciones/trainees-no-asignados`);
+  }
+
+  getEntrenadores(): Observable<Entrenador[]> {
+    return this.http.get<Entrenador[]>(`${this.apiUrl}/asignaciones/entrenadores`);
+  }
+
+  crearAsignacion(asignacion: AsignacionRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/asignaciones`, asignacion);
+  }
+
+  eliminarAsignacion(entrenadorId: number, traineeId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/asignaciones/${entrenadorId}/${traineeId}`);
   }
 }

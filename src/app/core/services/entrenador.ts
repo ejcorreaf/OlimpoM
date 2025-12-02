@@ -19,9 +19,11 @@ export interface Rutina {
   ejercicios?: any[];
 }
 
-export interface Trainee {
+export interface TraineeAsignado {
+  id: number;
   name: string;
   email: string;
+  photo_url?: string;
 }
 
 export interface EjercicioRutina {
@@ -29,6 +31,26 @@ export interface EjercicioRutina {
   series: number;
   repeticiones: number;
   descanso: number;
+}
+
+export interface Mensaje {
+  id: number;
+  emisor_id: number;
+  receptor_id: number;
+  mensaje: string;
+  leido: boolean;
+  created_at: string;
+  emisor?: { id: number; name: string; photo_url: string };
+  receptor?: { id: number; name: string; photo_url: string };
+}
+
+export interface Conversacion {
+  id: number;
+  name: string;
+  email: string;
+  photo_url?: string;
+  ultimo_mensaje?: Mensaje;
+  sin_leer: number;
 }
 
 @Injectable({
@@ -101,8 +123,10 @@ export class EntrenadorService {
     return this.http.delete(`${this.apiUrl}/rutinas/${rutinaId}/ejercicios/${ejercicioId}`);
   }
 
-  // Trainees
-  getTrainees(): Observable<Trainee[]> {
-    return this.http.get<Trainee[]>(`${this.apiUrl}/trainees`);
+  // SOLO UN MÉTODO PARA TRAINEES
+  getTrainees(): Observable<TraineeAsignado[]> {
+    return this.http.get<TraineeAsignado[]>(`${this.apiUrl}/trainees`);
   }
-} 
+
+  // ELIMINADO: getMisTrainees() - Usa getTrainees() para todo
+}

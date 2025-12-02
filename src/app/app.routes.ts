@@ -81,6 +81,20 @@ export const routes: Routes = [
       {
         path: 'rutinas/:id/ejercicios',
         loadComponent: () => import('./features/admin/rutinas/asignar-ejercicios/asignar-ejercicios').then(m => m.AdminAsignarEjerciciosComponent)
+      },
+      // NUEVO: Asignaciones entrenador-trainee
+      {
+        path: 'asignaciones',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/admin/admin-asignaciones/admin-asignaciones').then(m => m.AdminAsignacionesListComponent)
+          },
+          {
+            path: 'nueva',
+            loadComponent: () => import('./features/admin/admin-asignar-trainee/admin-asignar-trainee').then(m => m.AdminAsignarTraineeComponent)
+          }
+        ]
       }
     ]
   },
@@ -125,6 +139,25 @@ export const routes: Routes = [
       {
         path: 'rutinas/:id/ejercicios',
         loadComponent: () => import('./features/entrenador/rutinas/asignar-ejercicios/asignar-ejercicios').then(m => m.AsignarEjerciciosComponent)
+      },
+      // NUEVO: Gestión de trainees
+      {
+        path: 'trainees',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/entrenador/trainees/trainees-list/trainees-list').then(m => m.TraineesListComponent)
+          }
+        ]
+      },
+      // NUEVO: Chat
+      {
+        path: 'chat/:id',
+        loadComponent: () => import('./features/entrenador/chat/chat').then(m => m.ChatComponent)
+      },
+      {
+        path: 'chat',
+        loadComponent: () => import('./features/entrenador/chat/chat').then(m => m.ChatComponent)
       }
     ]
   },
@@ -140,6 +173,7 @@ export const routes: Routes = [
         path: 'home',
         loadComponent: () => import('./features/trainee/trainee-home/trainee-home').then(m => m.TraineeHomeComponent)
       },
+      // Rutinas
       {
         path: 'rutinas',
         loadComponent: () => import('./features/trainee/rutinas/rutinas-list/rutinas-list').then(m => m.TraineeRutinasListComponent)
@@ -147,6 +181,15 @@ export const routes: Routes = [
       {
         path: 'rutinas/:id',
         loadComponent: () => import('./features/trainee/rutinas/rutina-detalle/rutina-detalle').then(m => m.TraineeRutinaDetalleComponent)
+      },
+      // NUEVO: Chat con entrenador
+      {
+        path: 'chat',
+        loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)
+      },
+      {
+        path: 'chat/:id', 
+        loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)
       }
     ]
   },

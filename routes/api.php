@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\AdminRutinasController;
 use App\Http\Controllers\Api\Admin\AdminUsuariosController;
 use App\Http\Controllers\Api\Entrenador\TraineesController;
 use App\Http\Controllers\Api\MensajeController;
+use App\Http\Controllers\Api\PostController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -163,3 +164,19 @@ Route::middleware(['auth:sanctum', 'role:admin'])
             Route::delete('/{entrenadorId}/{traineeId}', [AdminAsignacionController::class, 'destroy']);
         });
     });
+
+
+// =====================================================
+// RUTAS PUBLICAS PARA NOTICIAS/BLOG
+// =====================================================
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/posts/recent', [PostController::class, 'recent']);
+Route::get('/posts/{id}', [PostController::class, 'show']);
+
+// RUTAS PROTEGIDAS PARA ADMINISTRADORES
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::put('/posts/{id}', [PostController::class, 'update']);
+    Route::delete('/posts/{id}', [PostController::class, 'destroy']);
+    Route::get('/posts/stats', [PostController::class, 'stats']);
+});

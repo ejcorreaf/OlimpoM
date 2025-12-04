@@ -27,7 +27,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent),
     canActivate: [authGuard]
   },
-
+  // Noticias
+  { 
+    path: 'news/:id', 
+    loadComponent: () => import('./features/news-detail/news-detail').then(m => m.NewsDetailComponent) 
+  },
   // Rutas para Admin
   {
     path: 'admin',
@@ -82,7 +86,6 @@ export const routes: Routes = [
         path: 'rutinas/:id/ejercicios',
         loadComponent: () => import('./features/admin/rutinas/asignar-ejercicios/asignar-ejercicios').then(m => m.AdminAsignarEjerciciosComponent)
       },
-      // NUEVO: Asignaciones entrenador-trainee
       {
         path: 'asignaciones',
         children: [
@@ -140,7 +143,7 @@ export const routes: Routes = [
         path: 'rutinas/:id/ejercicios',
         loadComponent: () => import('./features/entrenador/rutinas/asignar-ejercicios/asignar-ejercicios').then(m => m.AsignarEjerciciosComponent)
       },
-      // NUEVO: Gestión de trainees
+      // Gestión de trainees
       {
         path: 'trainees',
         children: [
@@ -150,7 +153,7 @@ export const routes: Routes = [
           }
         ]
       },
-      // NUEVO: Chat
+      // Chat
       {
         path: 'chat/:id',
         loadComponent: () => import('./features/entrenador/chat/chat').then(m => m.ChatComponent)
@@ -182,7 +185,7 @@ export const routes: Routes = [
         path: 'rutinas/:id',
         loadComponent: () => import('./features/trainee/rutinas/rutina-detalle/rutina-detalle').then(m => m.TraineeRutinaDetalleComponent)
       },
-      // NUEVO: Chat con entrenador
+      // Chat con entrenador
       {
         path: 'chat',
         loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)

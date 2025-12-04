@@ -71,7 +71,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   cargarMisTrainees() {
-  this.entrenadorService.getTrainees().subscribe({ // SOLO getTrainees()
+  this.entrenadorService.getTrainees().subscribe({
     next: (trainees) => {
       this.misTrainees = trainees;
     },

@@ -1,0 +1,105 @@
+<div 
+  #contactModal
+  class="modal fade" 
+  tabindex="-1" 
+  aria-labelledby="contactModalLabel" 
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contactModalLabel">Contacto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" novalidate>
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="name" 
+              formControlName="name"
+              [class.is-invalid]="submitted && name?.invalid">
+            @if (submitted && name?.invalid) {
+              <div class="invalid-feedback">
+                @if (name?.errors?.['required']) {
+                  <div>El nombre es obligatorio</div>
+                }
+              </div>
+            }
+          </div>
+          
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              formControlName="email"
+              [class.is-invalid]="submitted && email?.invalid">
+            @if (submitted && email?.invalid) {
+              <div class="invalid-feedback">
+                @if (email?.errors?.['required']) {
+                  <div>El email es obligatorio</div>
+                }
+                @if (email?.errors?.['email']) {
+                  <div>Debe ser un email válido</div>
+                }
+              </div>
+            }
+          </div>
+          
+          <div class="mb-3">
+            <label for="subject" class="form-label">Asunto</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="subject" 
+              formControlName="subject"
+              [class.is-invalid]="submitted && subject?.invalid">
+            @if (submitted && subject?.invalid) {
+              <div class="invalid-feedback">
+                @if (subject?.errors?.['required']) {
+                  <div>El asunto es obligatorio</div>
+                }
+              </div>
+            }
+          </div>
+          
+          <div class="mb-3">
+            <label for="message" class="form-label">Mensaje</label>
+            <textarea 
+              class="form-control" 
+              id="message" 
+              rows="4"
+              formControlName="message"
+              [class.is-invalid]="submitted && message?.invalid"></textarea>
+            @if (submitted && message?.invalid) {
+              <div class="invalid-feedback">
+                @if (message?.errors?.['required']) {
+                  <div>El mensaje es obligatorio</div>
+                }
+                @if (message?.errors?.['minlength']) {
+                  <div>El mensaje debe tener al menos 10 caracteres</div>
+                }
+              </div>
+            }
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+              [disabled]="isLoading">
+              @if (isLoading) {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              Enviar Mensaje
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

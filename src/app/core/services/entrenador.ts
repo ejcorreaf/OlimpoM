@@ -123,10 +123,7 @@ export class EntrenadorService {
     return this.http.delete(`${this.apiUrl}/rutinas/${rutinaId}/ejercicios/${ejercicioId}`);
   }
 
-  // SOLO UN MÉTODO PARA TRAINEES
   getTrainees(): Observable<TraineeAsignado[]> {
     return this.http.get<TraineeAsignado[]>(`${this.apiUrl}/trainees`);
   }
-
-  // ELIMINADO: getMisTrainees() - Usa getTrainees() para todo
 }

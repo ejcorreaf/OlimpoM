@@ -1,0 +1,29 @@
+.privacy-content {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  
+  h6 {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+  }
+  
+  .card {
+    transition: transform 0.2s;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .alert-info {
+    background-color: #e7f1ff;
+    border-color: #b8d4fe;
+  }
+}

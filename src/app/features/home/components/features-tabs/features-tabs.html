@@ -1,0 +1,94 @@
+<section class="features-section py-6">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center mb-5">
+        <h2 class="section-title">Características Principales</h2>
+        <p class="section-subtitle">Descubre todo lo que TrainPlanner puede hacer por ti</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <!-- Pestañas -->
+        <ul class="nav nav-tabs justify-content-center mb-4" id="featuresTab" role="tablist">
+          @for (tab of tabs; track tab.id; let i = $index) {
+            <li class="nav-item" role="presentation">
+              <button 
+                class="nav-link" 
+                [class.active]="activeTab === tab.id"
+                (click)="setActiveTab(tab.id)"
+                [id]="tab.id + '-tab'"
+                [attr.data-bs-toggle]="'tab'"
+                [attr.data-bs-target]="'#' + tab.id"
+                type="button"
+                role="tab"
+                [attr.aria-controls]="tab.id"
+                [attr.aria-selected]="activeTab === tab.id"
+              >
+                <i [class]="tab.icon + ' me-2'"></i>{{ tab.title }}
+              </button>
+            </li>
+          }
+        </ul>
+
+        <!-- Contenido de pestañas -->
+        <div class="tab-content" id="featuresTabContent">
+          @for (tab of tabs; track tab.id) {
+            <div 
+              class="tab-pane fade p-4 border rounded bg-white"
+              [class.show]="activeTab === tab.id"
+              [class.active]="activeTab === tab.id"
+              [id]="tab.id"
+              role="tabpanel"
+              [attr.aria-labelledby]="tab.id + '-tab'"
+            >
+              <div class="row align-items-center">
+                <!-- Columna izquierda: Contenido -->
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                  <h3 class="tab-title mb-4">{{ tab.mainTitle }}</h3>
+                  <p class="tab-description mb-4">{{ tab.description }}</p>
+                  
+                  <div class="features-list">
+                    @for (feature of tab.features; track feature.title) {
+                      <div class="feature-item d-flex mb-3">
+                        <div class="feature-icon me-3">
+                          <i class="bi bi-check-circle-fill text-primary"></i>
+                        </div>
+                        <div>
+                          <h5 class="feature-title mb-1">{{ feature.title }}</h5>
+                          <p class="feature-description text-muted mb-0">{{ feature.description }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  
+                  <div class="mt-4">
+                    @if (tab.ctaLink) {
+                      <a [routerLink]="tab.ctaLink" class="btn btn-primary">
+                        {{ tab.ctaText }}
+                      </a>
+                    }
+                  </div>
+                </div>
+                
+                <!-- Columna derecha: Imagen -->
+                <div class="col-lg-6">
+                  <div class="tab-image-container">
+                    <img 
+                      [src]="tab.image" 
+                      [alt]="tab.mainTitle"
+                      class="img-fluid rounded shadow"
+                    >
+                    <div class="image-caption mt-3 text-center text-muted">
+                      <small>{{ tab.imageCaption }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

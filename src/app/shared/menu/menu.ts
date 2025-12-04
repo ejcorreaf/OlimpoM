@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth';
   imports: [CommonModule,     
             RouterLink,],
   templateUrl: './menu.html',
-  styleUrls: ['./menu.scss']
+  styleUrl: './menu.scss'
 })
 export class MenuComponent {
 

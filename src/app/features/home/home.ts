@@ -1,19 +1,22 @@
-/*import { Component } from '@angular/core';
+// src/app/features/home/home.ts
+import { Component } from '@angular/core';
+import { HeroComponent } from './components/hero/hero';
+import { FeaturesTabsComponent } from './components/features-tabs/features-tabs';
+import { NewsComponent } from './components/news/news';
+import { TestimonialsComponent } from './components/testimonials/testimonials';
+import { PricingPreviewComponent } from './components/pricing-preview/pricing-preview';
 
 @Component({
   selector: 'app-home',
-  imports: [],
-  templateUrl: './home.html',
-  styleUrl: './home.scss',
-})
-export class Home {
-  
-}
-*/
-import { Component } from '@angular/core';
-
-@Component({
   standalone: true,
-  template: `<div class="p-3"><h2>Bienvenido al Frontend DAW</h2></div>`
+  imports: [
+    HeroComponent,
+    FeaturesTabsComponent,
+    NewsComponent,
+    TestimonialsComponent,
+    PricingPreviewComponent
+  ],
+  templateUrl: './home.html',
+  styleUrl: './home.scss'
 })
 export class Home {}

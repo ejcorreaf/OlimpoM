@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { roleGuard } from './core/guards/role-guard';
 import { emailVerifiedGuard } from './core/guards/email-verified-guard';
+import { subscriptionGuard } from './core/guards/subscription-guard';
 
 export const routes: Routes = [
   { 
@@ -32,6 +33,31 @@ export const routes: Routes = [
     path: 'news/:id', 
     loadComponent: () => import('./features/news-detail/news-detail').then(m => m.NewsDetailComponent) 
   },
+  // ============================================
+  // RUTAS DE SUSCRIPCIÓN (NUEVAS)
+  // ============================================
+  {
+  path: 'subscription',
+  canActivate: [authGuard],
+  children: [
+    {
+      path: 'plans',
+      loadComponent: () => import('./features/subscription/plans-list/plans-list').then(m => m.PlansListComponent)
+    },
+    {
+      path: 'checkout/:planId',
+      loadComponent: () => import('./features/subscription/checkout/checkout').then(m => m.CheckoutComponent)
+    },
+    {
+      path: 'success',
+      loadComponent: () => import('./features/subscription/payment-success/payment-success').then(m => m.PaymentSuccessComponent)
+    },
+    {
+      path: 'cancel',
+      loadComponent: () => import('./features/subscription/payment-cancel/payment-cancel').then(m => m.PaymentCancelComponent)
+    }
+  ]
+},
   // Rutas para Admin
   {
     path: 'admin',
@@ -168,7 +194,7 @@ export const routes: Routes = [
   // Rutas para Trainee
   {
     path: 'trainee',
-    canActivate: [authGuard, roleGuard, emailVerifiedGuard],
+    canActivate: [authGuard, roleGuard, emailVerifiedGuard, subscriptionGuard],
     data: { role: 'trainee' },
     children: [
       // Home de trainee

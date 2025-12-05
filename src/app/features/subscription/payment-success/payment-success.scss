@@ -1,0 +1,46 @@
+.payment-success-page {
+  min-height: calc(100vh - 200px);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  
+  .card {
+    border-radius: 1rem;
+    background-color: white;
+  }
+}
+
+.success-icon {
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      color: white;
+      font-size: 2.5rem;
+    }
+  }
+}
+
+// Animación para el icono
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.icon-circle {
+  animation: checkmark 0.6s ease-out;
+}

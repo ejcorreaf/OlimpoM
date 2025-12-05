@@ -1,0 +1,96 @@
+<section class="plans-section py-5">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <h1 class="display-5 fw-bold mb-3">Elige tu Plan de Entrenamiento</h1>
+        <p class="lead text-muted">
+          Selecciona el plan que mejor se adapte a tu frecuencia de entrenamiento.
+          Todos los planes incluyen acceso completo a la plataforma.
+        </p>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="row">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="row justify-content-center">
+        @for (plan of plans; track plan.id) {
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div 
+              class="plan-card h-100" 
+              [class.selected]="selectedPlanId === plan.id"
+              (click)="selectPlan(plan.id)"
+            >
+              @if (plan.id === 2) {
+                <div class="popular-badge">RECOMENDADO</div>
+              }
+              
+              <div class="plan-header p-4 text-center">
+                <h3 class="plan-name mb-3">{{ plan.nombre }}</h3>
+                <div class="price mb-2">
+                  <span class="currency">€</span>
+                  <span class="amount">{{ plan.precio }}</span>
+                  <span class="period">/mes</span>
+                </div>
+                <p class="plan-description text-muted mb-0">{{ plan.descripcion }}</p>
+              </div>
+              
+              <div class="plan-body p-4">
+                <div class="plan-features mb-4">
+                  <h6 class="mb-3">
+                    <i class="bi bi-calendar-week me-2"></i>{{ plan.dias_por_semana }} días/semana
+                  </h6>
+                  <ul class="list-unstyled">
+                    @for (feature of getFeaturesList(plan.caracteristicas); track feature) {
+                      <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        {{ feature }}
+                      </li>
+                    }
+                  </ul>
+                </div>
+                
+                <div class="text-center">
+                  @if (selectedPlanId === plan.id) {
+                    <a [routerLink]="['/subscription/checkout', plan.id]" class="btn btn-primary w-100">
+                      <i class="bi bi-credit-card me-2"></i>Seleccionar Plan
+                    </a>
+                  } @else {
+                    <button class="btn btn-outline-primary w-100" (click)="selectPlan(plan.id)">
+                      Seleccionar
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="alert alert-info">
+            <div class="d-flex">
+              <i class="bi bi-info-circle me-3" style="font-size: 1.5rem;"></i>
+              <div>
+                <h5 class="alert-heading mb-2">Información importante</h5>
+                <p class="mb-0">
+                  • Los planes se renuevan automáticamente cada mes<br>
+                  • Puedes cancelar en cualquier momento<br>
+                  • Acceso inmediato después del pago<br>
+                  • Soporte 24/7 incluido
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\Admin\AdminRutinasController;
 use App\Http\Controllers\Api\Admin\AdminUsuariosController;
 use App\Http\Controllers\Api\Entrenador\TraineesController;
 use App\Http\Controllers\Api\MensajeController;
+use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\SuscripcionController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,12 +39,21 @@ Route::middleware('auth:sanctum')->group(function () {
         $user = $r->user();
 
         // Cargar relaciones necesarias
-        $user->load('roles');
+        $user->load('roles', 'plan');
 
         // Usar Laravel Permission correctamente
         $user->role = $user->getRoleNames()->first();
         $user->email_verified = $user->hasVerifiedEmail();
         $user->needs_email_verification = $user->hasRole('trainee') && !$user->hasVerifiedEmail();
+
+        // Información de suscripción
+        $user->estado_suscripcion = $user->estado_suscripcion ?? 'ninguna';
+        $user->tiene_suscripcion_activa = $user->tieneSuscripcionActiva();
+
+        if ($user->plan) {
+            $user->plan_nombre = $user->plan->nombre;
+            $user->plan_precio = $user->plan->precio;
+        }
 
         return $user;
     });
@@ -127,18 +138,28 @@ Route::middleware(['auth:sanctum', 'role:trainer', 'verified'])
 
 
 // =====================================================
-// RUTAS TRAINEE (role:trainee)
+// RUTAS TRAINEE
 // =====================================================
-Route::middleware(['auth:sanctum', 'role:trainee', 'verified'])
+
+// Rutas que requieren suscripción activa
+Route::middleware(['auth:sanctum', 'role:trainee', 'verified', 'suscripcion'])
     ->prefix('trainee')
     ->group(function () {
         Route::get('/rutinas', [RutinasTraineeController::class, 'index']);
         Route::get('/rutinas/{id}', [RutinasTraineeController::class, 'show']);
     });
 
+// Rutas que NO requieren suscripción activa
+Route::middleware(['auth:sanctum', 'role:trainee', 'verified'])
+    ->prefix('trainee')
+    ->group(function () {
+        Route::get('/planes', [PlanController::class, 'index']);
+        Route::get('/suscripcion', [SuscripcionController::class, 'index']);
+    });
+
 
 // =====================================================
-// RUTAS ADMIN (role:admin)
+// RUTAS ADMIN
 // =====================================================
 Route::middleware(['auth:sanctum', 'role:admin'])
     ->prefix('admin')
@@ -179,4 +200,18 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     Route::get('/posts/stats', [PostController::class, 'stats']);
+});
+
+// =====================================================
+// RUTAS SUSCRIPCIONES
+// =====================================================
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Crear/confirmar/cancelar suscripción
+    Route::post('/suscripciones', [SuscripcionController::class, 'store']);
+    Route::post('/suscripciones/{intencionPagoId}/confirmar', [SuscripcionController::class, 'confirmar']);
+    Route::post('/suscripciones/simular', [SuscripcionController::class, 'simular']);
+    Route::delete('/suscripciones', [SuscripcionController::class, 'destroy']);
+
+    // Verificar estado de pago
+    Route::get('/suscripciones/{intencionPagoId}/estado', [SuscripcionController::class, 'estado']);
 });

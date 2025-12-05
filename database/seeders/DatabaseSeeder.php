@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             DemoDataSeeder::class,
             PostsSeeder::class,
+            PlanesSeeder::class,
         ]);
     }
 }

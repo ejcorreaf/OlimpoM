@@ -118,13 +118,16 @@ Route::get('/verify-email/{id}/{hash}', function ($id, $hash) {
 })->name('verification.verify');
 
 // =====================================================
-// RUTAS ENTRENADOR (role:trainer)
+// RUTAS ENTRENADOR
 // =====================================================
 Route::middleware(['auth:sanctum', 'role:trainer', 'verified'])
     ->prefix('entrenador')
     ->group(function () {
 
-        Route::apiResource('ejercicios', EjerciciosController::class);
+        Route::get('ejercicios', [EjerciciosController::class, 'index']);
+        Route::get('ejercicios/grupos', [EjerciciosController::class, 'gruposMusculares']);
+        Route::get('ejercicios/{ejercicio}', [EjerciciosController::class, 'show']);
+        Route::get('ejercicios/estadisticas/contador', [EjerciciosController::class, 'estadisticas']);
         Route::apiResource('rutinas', RutinasController::class);
 
         Route::post('/rutinas/{rutina}/ejercicios', [RutinasController::class, 'asignarEjercicios']);
@@ -132,7 +135,6 @@ Route::middleware(['auth:sanctum', 'role:trainer', 'verified'])
         Route::put('/rutinas/{rutina}/ejercicios', [RutinasController::class, 'sincronizarEjercicios']);
         Route::delete('/rutinas/{rutina}/ejercicios/{ejercicioId}', [RutinasController::class, 'eliminarEjercicio']);
 
-        // SOLO ESTA RUTA - la misma para todo
         Route::get('/trainees', [RutinasController::class, 'trainees']);
     });
 

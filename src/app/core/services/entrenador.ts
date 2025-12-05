@@ -60,26 +60,33 @@ export class EntrenadorService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8000/api/entrenador';
 
-  // Ejercicios
-  getEjercicios(): Observable<Ejercicio[]> {
-    return this.http.get<Ejercicio[]>(`${this.apiUrl}/ejercicios`);
+  // Métodos existentes de lectura
+  getEjercicios(grupo?: string, search?: string): Observable<Ejercicio[]> {
+    let params = new HttpParams();
+    
+    if (grupo) {
+      params = params.set('grupo_muscular', grupo);
+    }
+    
+    if (search) {
+      params = params.set('search', search);
+    }
+    
+    return this.http.get<Ejercicio[]>(`${this.apiUrl}/ejercicios`, { params });
   }
 
   getEjercicio(id: number): Observable<Ejercicio> {
     return this.http.get<Ejercicio>(`${this.apiUrl}/ejercicios/${id}`);
   }
 
-  createEjercicio(ejercicio: FormData): Observable<Ejercicio> {
-    return this.http.post<Ejercicio>(`${this.apiUrl}/ejercicios`, ejercicio);
+  getGruposMusculares(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/ejercicios/grupos`);
   }
 
-  updateEjercicio(id: number, ejercicio: FormData): Observable<Ejercicio> {
-    return this.http.put<Ejercicio>(`${this.apiUrl}/ejercicios/${id}`, ejercicio);
+  getEstadisticas(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/ejercicios/estadisticas/contador`);
   }
 
-  deleteEjercicio(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/ejercicios/${id}`);
-  }
 
   // Rutinas
   getRutinas(search?: string): Observable<any> {

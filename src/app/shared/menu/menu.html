@@ -25,7 +25,9 @@
         <!-- TRAINER -->
         @if (auth.getUserRole() === 'trainer') {
           <li class="nav-item">
-            <a class="nav-link" routerLink="/entrenador/ejercicios">Ejercicios</a>
+            <a class="nav-link" routerLink="/entrenador/ejercicios" routerLinkActive="active">
+              <i class="fas fa-dumbbell me-2"></i>Ver Ejercicios
+            </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/entrenador/rutinas">Rutinas</a>
@@ -54,7 +56,9 @@
             <a class="nav-link" routerLink="/admin/usuarios">Usuarios</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" routerLink="/admin/ejercicios">Ejercicios</a>
+            <a class="nav-link" routerLink="/admin/ejercicios" routerLinkActive="active">
+              <i class="fas fa-dumbbell me-2"></i>Gestión de Ejercicios
+            </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/admin/rutinas">Rutinas</a>

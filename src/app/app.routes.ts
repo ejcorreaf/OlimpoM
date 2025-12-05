@@ -142,15 +142,16 @@ export const routes: Routes = [
       // Ejercicios
       {
         path: 'ejercicios',
-        loadComponent: () => import('./features/entrenador/ejercicios/ejercicios-list/ejercicios-list').then(m => m.EjerciciosListComponent)
-      },
-      {
-        path: 'ejercicios/nuevo',
-        loadComponent: () => import('./features/entrenador/ejercicios/ejercicios-form/ejercicios-form').then(m => m.EjercicioFormComponent)
-      },
-      {
-        path: 'ejercicios/editar/:id',
-        loadComponent: () => import('./features/entrenador/ejercicios/ejercicios-form/ejercicios-form').then(m => m.EjercicioFormComponent)
+        children: [
+          { 
+            path: '', 
+            loadComponent: () => import('./features/entrenador/ejercicios/ejercicios-view/ejercicios-view').then(m => m.EjerciciosViewComponent) 
+          },
+          { 
+            path: 'detalle/:id', 
+            loadComponent: () => import('./features/entrenador/ejercicios/ejercicio-detail/ejercicio-detail').then(m => m.EjercicioDetailComponent) 
+          }
+        ]
       },
       // Rutinas
       {

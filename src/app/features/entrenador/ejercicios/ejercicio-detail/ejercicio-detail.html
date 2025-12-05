@@ -1,0 +1,83 @@
+<div class="container mt-4">
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando ejercicio...</p>
+    </div>
+  } @else if (ejercicio) {
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Detalle del Ejercicio</h4>
+          <button class="btn btn-light btn-sm" (click)="goBack()">
+            <i class="fas fa-arrow-left me-1"></i>Volver
+          </button>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            @if (ejercicio.foto) {
+              <img [src]="'http://localhost:8000/ejercicios/' + ejercicio.foto" 
+                   [alt]="ejercicio.nombre" 
+                   class="img-fluid rounded mb-3"
+                   style="max-height: 400px; object-fit: cover;">
+            } @else {
+              <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" 
+                   style="height: 400px;">
+                <div class="text-center">
+                  <i class="fas fa-dumbbell fa-5x text-muted"></i>
+                  <p class="mt-3 text-muted">Sin imagen</p>
+                </div>
+              </div>
+            }
+          </div>
+          
+          <div class="col-md-6">
+            <h2 class="mb-3">{{ ejercicio.nombre }}</h2>
+            
+            <div class="mb-4">
+              <span class="badge bg-primary fs-6 p-2">
+                <i class="fas fa-dumbbell me-1"></i>
+                {{ ejercicio.grupo_muscular }}
+              </span>
+            </div>
+            
+            <div class="mb-4">
+              <h5 class="text-primary">
+                <i class="fas fa-file-alt me-2"></i>Descripción
+              </h5>
+              <p class="lead">{{ ejercicio.descripcion || 'Sin descripción detallada' }}</p>
+            </div>
+            
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Modo de solo lectura:</strong> Solo los administradores pueden modificar los ejercicios.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-footer text-center">
+        <a routerLink="/entrenador/ejercicios" class="btn btn-outline-primary me-2">
+          <i class="fas fa-list me-1"></i>Volver al catálogo
+        </a>
+        <button class="btn btn-secondary" (click)="goBack()">
+          <i class="fas fa-arrow-left me-1"></i>Regresar
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="alert alert-danger text-center">
+      <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+      <h4>Ejercicio no encontrado</h4>
+      <p>El ejercicio que buscas no existe o no tienes permiso para verlo.</p>
+      <a routerLink="/entrenador/ejercicios" class="btn btn-primary">
+        <i class="fas fa-list me-1"></i>Ver catálogo de ejercicios
+      </a>
+    </div>
+  }
+</div>

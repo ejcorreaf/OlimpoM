@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MensajesService } from '../../../core/services/mensajes';
 import { Mensaje } from '../../../core/services/entrenador';
 import { AuthService } from '../../../core/services/auth';
+import { Subscription, interval, mergeMap, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-trainee-chat',
@@ -13,7 +14,7 @@ import { AuthService } from '../../../core/services/auth';
   templateUrl: './chat.html',
   styleUrls: ['./chat.scss']
 })
-export class TraineeChatComponent implements OnInit, AfterViewChecked {
+export class TraineeChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   private mensajesService = inject(MensajesService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
@@ -21,15 +22,16 @@ export class TraineeChatComponent implements OnInit, AfterViewChecked {
   
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
-  conversaciones: any[] = [];
   mensajes: Mensaje[] = [];
-  usuarioSeleccionado: any = null;
-  usuarioSeleccionadoId: number | null = null;
+  miEntrenador: any = null;
   miUsuarioId: number = 0;
   nuevoMensaje = '';
   cargandoMensajes = false;
   enviando = false;
-  miEntrenador: any = null;
+  
+  // Variables para polling
+  private pollingSubscription?: Subscription;
+  private readonly POLLING_INTERVAL = 3000; // 3 segundos
 
   ngOnInit() {
     // Obtener usuario actual y su entrenador
@@ -38,22 +40,11 @@ export class TraineeChatComponent implements OnInit, AfterViewChecked {
         this.miUsuarioId = user.id;
         this.miEntrenador = user.entrenador_asignado;
         
-        // Si hay entrenador pero no está en conversaciones, añadirlo
-        if (this.miEntrenador && !this.conversaciones.find(c => c.id === this.miEntrenador.id)) {
-          this.conversaciones.unshift({
-            ...this.miEntrenador,
-            ultimo_mensaje: null,
-            sin_leer: 0
-          });
+        // Si tiene entrenador, cargar mensajes y empezar polling
+        if (this.miEntrenador) {
+          this.cargarMensajes();
+          this.startPolling();
         }
-      }
-    });
-    
-    this.cargarConversaciones();
-    
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.seleccionarConversacionPorId(parseInt(params['id']));
       }
     });
   }
@@ -62,48 +53,16 @@ export class TraineeChatComponent implements OnInit, AfterViewChecked {
     this.scrollToBottom();
   }
 
-  cargarConversaciones() {
-    this.mensajesService.getConversaciones().subscribe({
-      next: (conversaciones) => {
-        this.conversaciones = conversaciones;
-        
-        // Asegurar que el entrenador está en las conversaciones
-        if (this.miEntrenador && !conversaciones.find(c => c.id === this.miEntrenador.id)) {
-          this.conversaciones.unshift({
-            ...this.miEntrenador,
-            ultimo_mensaje: null,
-            sin_leer: 0
-          });
-        }
-        
-        // Si no hay usuario seleccionado y hay entrenador, seleccionarlo
-        if (!this.usuarioSeleccionado && this.miEntrenador) {
-          this.seleccionarConversacion(this.miEntrenador);
-        }
-      },
-      error: (error) => {
-        console.error('Error cargando conversaciones:', error);
-      }
-    });
+  ngOnDestroy() {
+    // Limpiar suscripciones al destruir componente
+    this.stopPolling();
   }
 
-  seleccionarConversacion(usuario: any) {
-    this.usuarioSeleccionado = usuario;
-    this.usuarioSeleccionadoId = usuario.id;
-    this.cargarMensajes(usuario.id);
-    this.router.navigate(['/trainee/chat', usuario.id]);
-  }
-
-  seleccionarConversacionPorId(usuarioId: number) {
-    const usuario = this.conversaciones.find(c => c.id === usuarioId);
-    if (usuario) {
-      this.seleccionarConversacion(usuario);
-    }
-  }
-
-  cargarMensajes(usuarioId: number) {
+  cargarMensajes() {
+    if (!this.miEntrenador) return;
+    
     this.cargandoMensajes = true;
-    this.mensajesService.getConversacion(usuarioId).subscribe({
+    this.mensajesService.getConversacion(this.miEntrenador.id).subscribe({
       next: (mensajes) => {
         this.mensajes = mensajes;
         this.cargandoMensajes = false;
@@ -115,18 +74,62 @@ export class TraineeChatComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  // Iniciar polling para mensajes
+  startPolling() {
+    if (!this.miEntrenador) return;
+    
+    this.stopPolling();
+    
+    this.pollingSubscription = interval(this.POLLING_INTERVAL)
+      .pipe(
+        startWith(0),
+        mergeMap(() => this.mensajesService.getConversacion(this.miEntrenador.id))
+      )
+      .subscribe({
+        next: (mensajes) => {
+          // Solo actualizar si hay nuevos mensajes
+          if (this.hasNewMessages(mensajes)) {
+            this.mensajes = mensajes;
+          }
+        },
+        error: (error) => {
+          console.error('Error en polling de mensajes:', error);
+        }
+      });
+  }
+
+  stopPolling() {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
+  }
+
+  // Verificar si hay nuevos mensajes
+  private hasNewMessages(newMensajes: Mensaje[]): boolean {
+    if (this.mensajes.length !== newMensajes.length) return true;
+    
+    // Comparar el último mensaje
+    if (this.mensajes.length > 0 && newMensajes.length > 0) {
+      return this.mensajes[this.mensajes.length - 1].id !== 
+             newMensajes[newMensajes.length - 1].id;
+    }
+    
+    return false;
+  }
+
   enviarMensaje() {
-    if (!this.nuevoMensaje.trim() || !this.usuarioSeleccionado) return;
+    if (!this.nuevoMensaje.trim() || !this.miEntrenador) return;
 
     this.enviando = true;
-    this.mensajesService.enviarMensaje(this.usuarioSeleccionado.id, this.nuevoMensaje).subscribe({
+    this.mensajesService.enviarMensaje(this.miEntrenador.id, this.nuevoMensaje).subscribe({
       next: (mensaje) => {
+        // Añadir el mensaje localmente inmediatamente
         this.mensajes.push(mensaje);
         this.nuevoMensaje = '';
         this.enviando = false;
         
-        // Actualizar conversaciones
-        this.cargarConversaciones();
+        // Hacer scroll al final
+        this.scrollToBottom();
       },
       error: (error) => {
         console.error('Error enviando mensaje:', error);
@@ -138,7 +141,9 @@ export class TraineeChatComponent implements OnInit, AfterViewChecked {
   private scrollToBottom(): void {
     try {
       if (this.chatContainer?.nativeElement) {
-        this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+        setTimeout(() => {
+          this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+        }, 100);
       }
     } catch(err) { }
   }

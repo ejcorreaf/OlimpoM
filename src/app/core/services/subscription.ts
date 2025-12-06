@@ -98,4 +98,34 @@ export class SubscriptionService {
       { plan_id: planId }
     );
   }
+
+  // Crear orden de PayPal
+  createPayPalOrder(data: CreateSubscriptionDto): Observable<{
+    message: string;
+    order_id: string;
+    approval_url: string;
+    suscripcion: Suscripcion;
+  }> {
+    return this.http.post<{
+      message: string;
+      order_id: string;
+      approval_url: string;
+      suscripcion: Suscripcion;
+    }>(`${this.apiUrl}/paypal/create-order`, data);
+  }
+
+  // Capturar orden de PayPal
+  capturePayPalOrder(orderId: string): Observable<{ exito: boolean; message: string; suscripcion: Suscripcion }> {
+    return this.http.post<{ exito: boolean; message: string; suscripcion: Suscripcion }>(
+      `${this.apiUrl}/paypal/capture-order/${orderId}`,
+      {}
+    );
+  }
+
+  // Verificar estado de orden
+  checkPayPalOrderStatus(orderId: string): Observable<{ estado: string }> {
+    return this.http.get<{ estado: string }>(
+      `${this.apiUrl}/paypal/check-order-status/${orderId}`
+    );
+  }
 }

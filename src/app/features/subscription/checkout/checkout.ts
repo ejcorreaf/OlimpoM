@@ -82,31 +82,39 @@ export class CheckoutComponent implements OnInit {
     
     const subscriptionData = {
       plan_id: this.plan.id,
-      metodo_pago: this.metodoPago,
       datos_facturacion: this.datosFacturacion
     };
 
-    this.subscriptionService.createSubscription(subscriptionData).subscribe({
+    if (this.metodoPago === 'paypal') {
+      this.processPayPalPayment(subscriptionData);
+    } else if (this.metodoPago === 'tarjeta') {
+      this.processCardPayment(subscriptionData);
+    }
+  }
+
+  processPayPalPayment(subscriptionData: any) {
+    this.subscriptionService.createPayPalOrder(subscriptionData).subscribe({
       next: (response) => {
-        // CORRECCIÓN: response.intencion_pago no es response directo
-        if (this.metodoPago === 'paypal' && response.intencion_pago?.url_redireccion) {
+        console.log('Respuesta PayPal:', response); // Para debug
+        if (response.approval_url) {
+          // Guardar order_id en localStorage para después
+          localStorage.setItem('last_paypal_order', JSON.stringify({
+            order_id: response.order_id,
+            plan_id: this.plan?.id,
+            plan_name: this.plan?.nombre
+          }));
+          
           // Redirigir a PayPal
-          window.location.href = response.intencion_pago.url_redireccion;
-        } else if (this.metodoPago === 'tarjeta' && response.intencion_pago?.secreto_cliente) {
-          // Procesar pago con tarjeta
-          this.processCardPayment(response);
-        } else if (response.intencion_pago?.intencion_pago_id) {
-          // Pago manual o simulado
-          this.completePayment(response.intencion_pago.intencion_pago_id);
+          window.location.href = response.approval_url;
         } else {
           this.procesandoPago = false;
-          alert('No se pudo crear la intención de pago. Inténtalo de nuevo.');
+          alert('No se pudo crear la orden de PayPal');
         }
       },
       error: (error) => {
-        console.error('Error creando pago:', error);
+        console.error('Error creando orden PayPal:', error);
         this.procesandoPago = false;
-        alert('Error al procesar el pago. Por favor, inténtalo de nuevo.');
+        alert('Error al procesar el pago con PayPal: ' + (error.error?.message || error.message));
       }
     });
   }

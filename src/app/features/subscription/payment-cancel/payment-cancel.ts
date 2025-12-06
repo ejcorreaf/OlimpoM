@@ -17,6 +17,6 @@ export class PaymentCancelComponent {
   }
 
   goToHome() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/trainee/home']);
   }
 }

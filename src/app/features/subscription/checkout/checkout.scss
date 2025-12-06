@@ -1,27 +1,12 @@
 .checkout-page {
   min-height: calc(100vh - 200px);
-  background-color: #f8f9fa;
-}
-
-.order-summary {
-  border: none;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  border-radius: 0.75rem;
   
-  &.sticky-top {
+  .order-summary {
     top: 20px;
   }
   
-  .card-header {
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    border-radius: 0.75rem 0.75rem 0 0 !important;
-  }
-  
-  .plan-summary {
-    h4 {
-      color: #2c3e50;
-      font-weight: 700;
-    }
+  .sticky-top {
+    position: sticky;
   }
   
   .price-breakdown {
@@ -31,39 +16,76 @@
   }
 }
 
+// Estilos para Stripe Elements
+.StripeElement {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  background-color: white;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  
+  &--focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  &--invalid {
+    border-color: #dc3545;
+  }
+  
+  &--complete {
+    border-color: #198754;
+  }
+}
+
+#card-element {
+  min-height: 40px;
+}
+
+// Estilos específicos para el checkout
+.card-details {
+  background-color: #f8f9fa;
+  border-color: #dee2e6 !important;
+}
+
 .payment-methods {
   .form-check-label {
-    padding: 0.75rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    width: 100%;
-    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
     
     &:hover {
       background-color: #f8f9fa;
-      border-color: #3498db;
     }
   }
   
   .form-check-input:checked + .form-check-label {
-    background-color: rgba(52, 152, 219, 0.05);
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    background-color: #e7f1ff;
+    border-color: #86b7fe;
   }
-}
-
-.card-details {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6 !important;
 }
 
 // Responsive
+@media (max-width: 992px) {
+  .order-summary {
+    position: static !important;
+    margin-bottom: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .checkout-page {
-    padding-top: 1rem;
-  }
-  
-  .order-summary.sticky-top {
-    position: static !important;
+    .container {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+    
+    h1.display-6 {
+      font-size: 1.75rem;
+    }
   }
 }

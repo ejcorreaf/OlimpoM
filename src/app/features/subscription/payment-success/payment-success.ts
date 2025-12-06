@@ -19,35 +19,37 @@ export class PaymentSuccessComponent implements OnInit {
   
   subscriptionId: string = '';
   planName: string = '';
-  orderId: string = '';
   loading = true;
   paymentProcessed = false;
+  isStripePayment = false;
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      // Obtener parámetros de PayPal
-      this.orderId = params['token'] || ''; // PayPal pasa 'token' no 'subscription_id'
+      console.log('Parámetros de URL:', params);
       
-      // Intentar obtener de localStorage si no hay en URL
-      const lastOrder = localStorage.getItem('last_paypal_order');
-      if (lastOrder && !this.orderId) {
-        const orderData = JSON.parse(lastOrder);
-        this.orderId = orderData.order_id;
-        this.planName = orderData.plan_name;
-      }
+      // Para PayPal: token viene en la URL
+      // Para Stripe: no viene nada, el pago ya se procesó
+      const paypalToken = params['token'];
+      const subscriptionId = params['subscription_id'];
+      this.planName = params['plan'] || '';
       
-      if (this.orderId) {
-        this.capturePayment();
+      if (paypalToken || subscriptionId) {
+        // Es un pago de PayPal que necesita captura
+        this.capturePayPalPayment(paypalToken || subscriptionId);
       } else {
+        // Es un pago de Stripe que ya se procesó
+        this.isStripePayment = true;
         this.loading = false;
-        alert('No se pudo identificar la orden de pago');
-        this.router.navigate(['/subscription/plans']);
+        this.paymentProcessed = true;
+        
+        // Mostrar información de la última suscripción
+        this.showLastSubscriptionInfo();
       }
     });
   }
 
-  capturePayment() {
-    this.subscriptionService.capturePayPalOrder(this.orderId).subscribe({
+  capturePayPalPayment(orderId: string) {
+    this.subscriptionService.capturePayPalOrder(orderId).subscribe({
       next: (response) => {
         this.loading = false;
         
@@ -57,33 +59,55 @@ export class PaymentSuccessComponent implements OnInit {
           this.planName = response.suscripcion.plan?.nombre || this.planName;
           
           // Actualizar estado del usuario
-          const user = this.auth.getCurrentUser();
-          if (user) {
-            this.auth.updateUser({
-              ...user,
-              estado_suscripcion: 'activa',
-              suscripcion_expira_en: response.suscripcion.expira_en,
-              tiene_suscripcion_activa: true,
-              plan_id: response.suscripcion.plan_id,
-              plan_nombre: response.suscripcion.plan?.nombre,
-              plan_precio: response.suscripcion.plan?.precio
-            });
-          }
+          this.updateUserAfterPayment(response.suscripcion);
           
           // Limpiar localStorage
           localStorage.removeItem('last_paypal_order');
         } else {
-          alert('Error al procesar el pago: ' + (response.message || 'Inténtalo de nuevo'));
-          this.router.navigate(['/subscription/plans']);
+          this.showError('Error al procesar el pago: ' + (response.message || 'Inténtalo de nuevo'));
         }
       },
       error: (error) => {
         console.error('Error capturando pago:', error);
         this.loading = false;
-        alert('Error al verificar el pago: ' + (error.error?.message || error.message));
-        this.router.navigate(['/subscription/plans']);
+        this.showError('Error al verificar el pago: ' + (error.error?.message || error.message));
       }
     });
+  }
+
+  showLastSubscriptionInfo() {
+    // Intentar obtener información de la última suscripción
+    this.subscriptionService.getUserSubscription().subscribe({
+      next: (response) => {
+        if (response.suscripcion) {
+          this.subscriptionId = response.suscripcion.id.toString();
+          this.planName = response.suscripcion.plan?.nombre || this.planName;
+        }
+      },
+      error: (error) => {
+        console.error('Error obteniendo suscripción:', error);
+      }
+    });
+  }
+
+  updateUserAfterPayment(suscripcion: any) {
+    const user = this.auth.getCurrentUser();
+    if (user && suscripcion) {
+      this.auth.updateUser({
+        ...user,
+        estado_suscripcion: 'activa',
+        suscripcion_expira_en: suscripcion.expira_en,
+        tiene_suscripcion_activa: true,
+        plan_id: suscripcion.plan_id,
+        plan_nombre: suscripcion.plan?.nombre,
+        plan_precio: suscripcion.plan?.precio
+      });
+    }
+  }
+
+  showError(message: string) {
+    alert(message);
+    this.router.navigate(['/subscription/plans']);
   }
 
   goToDashboard() {
@@ -92,5 +116,9 @@ export class PaymentSuccessComponent implements OnInit {
 
   goToRoutines() {
     this.router.navigate(['/trainee/rutinas']);
+  }
+
+  goToProfile() {
+    this.router.navigate(['/perfil']);
   }
 }

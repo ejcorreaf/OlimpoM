@@ -20,57 +20,227 @@
       </div>
     } @else {
       <div class="row justify-content-center">
-        @for (plan of plans; track plan.id) {
-          <div class="col-lg-4 col-md-6 mb-4">
-            <div 
-              class="plan-card h-100" 
-              [class.selected]="selectedPlanId === plan.id"
-              (click)="selectPlan(plan.id)"
-            >
-              @if (plan.id === 2) {
-                <div class="popular-badge">RECOMENDADO</div>
-              }
-              
-              <div class="plan-header p-4 text-center">
-                <h3 class="plan-name mb-3">{{ plan.nombre }}</h3>
-                <div class="price mb-2">
-                  <span class="currency">€</span>
-                  <span class="amount">{{ plan.precio }}</span>
-                  <span class="period">/mes</span>
-                </div>
-                <p class="plan-description text-muted mb-0">{{ plan.descripcion }}</p>
+        <!-- Plan Básico -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="plan-card h-100" [class.selected]="selectedPlanId === 1">
+            <div class="plan-header p-4 text-center">
+              <h3 class="plan-name mb-3">Básico</h3>
+              <div class="price mb-2">
+                <span class="currency">€</span>
+                <span class="amount">9.99</span>
+                <span class="period">/mes</span>
+              </div>
+              <p class="plan-description text-muted mb-0">Para quienes entrenan 3 días por semana</p>
+            </div>
+            
+            <div class="plan-body p-4">
+              <div class="plan-features mb-4">
+                <h6 class="mb-3">
+                  <i class="bi bi-calendar-week me-2"></i>3 días/semana
+                </h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Acceso completo a rutinas
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Seguimiento de progreso
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Chat con entrenador
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Recordatorios automáticos
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    App móvil incluida
+                  </li>
+                </ul>
               </div>
               
-              <div class="plan-body p-4">
-                <div class="plan-features mb-4">
-                  <h6 class="mb-3">
-                    <i class="bi bi-calendar-week me-2"></i>{{ plan.dias_por_semana }} días/semana
-                  </h6>
-                  <ul class="list-unstyled">
-                    @for (feature of getFeaturesList(plan.caracteristicas); track feature) {
-                      <li class="mb-2">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        {{ feature }}
-                      </li>
-                    }
-                  </ul>
-                </div>
-                
-                <div class="text-center">
-                  @if (selectedPlanId === plan.id) {
-                    <a [routerLink]="['/subscription/checkout', plan.id]" class="btn btn-primary w-100">
+              <div class="text-center">
+                @if (isCurrentUserPlan(1)) {
+                  <div class="current-plan-indicator">
+                    <span class="badge bg-success py-2 px-3">
+                      <i class="bi bi-check-circle me-1"></i>Plan Actual
+                    </span>
+                  </div>
+                } @else if (hasActiveSubscription) {
+                  @if (isUpgrade(9.99)) {
+                    <button class="btn btn-primary w-100" (click)="changePlan(2, 19.99, 'Avanzado')">
+                      <i class="bi bi-arrow-up-circle me-2"></i>Mejorar Plan
+                    </button>
+                    <p class="text-muted mt-2 small mb-0">
+                      Mejorarás de {{ getCurrentPlanName() }} a Básico
+                    </p>
+                  } @else {
+                    <button class="btn btn-outline-primary w-100" (click)="changePlan(1, 9.99, 'Básico'); $event.stopPropagation()">
+                      <i class="bi bi-arrow-down-circle me-2"></i>Cambiar Plan
+                    </button>
+                    <p class="text-muted mt-2 small mb-0">
+                      Cambiarás de {{ getCurrentPlanName() }} a Básico
+                    </p>
+                  }
+                } @else {
+                  @if (selectedPlanId === 1) {
+                    <a [routerLink]="['/subscription/checkout', 1]" class="btn btn-primary w-100">
                       <i class="bi bi-credit-card me-2"></i>Seleccionar Plan
                     </a>
                   } @else {
-                    <button class="btn btn-outline-primary w-100" (click)="selectPlan(plan.id)">
+                    <button class="btn btn-outline-primary w-100" (click)="selectPlan(1)">
                       Seleccionar
                     </button>
                   }
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Plan Avanzado -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="plan-card h-100 popular" [class.selected]="selectedPlanId === 2">
+            <div class="popular-badge">RECOMENDADO</div>
+            
+            <div class="plan-header p-4 text-center">
+              <h3 class="plan-name mb-3">Avanzado</h3>
+              <div class="price mb-2">
+                <span class="currency">€</span>
+                <span class="amount">19.99</span>
+                <span class="period">/mes</span>
+              </div>
+              <p class="plan-description text-muted mb-0">Para entrenamiento intensivo 5 días por semana</p>
+            </div>
+            
+            <div class="plan-body p-4">
+              <div class="plan-features mb-4">
+                <h6 class="mb-3">
+                  <i class="bi bi-calendar-week me-2"></i>5 días/semana
+                </h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Todo del plan Básico
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Rutinas personalizadas avanzadas
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Video-guías de ejercicios
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Análisis de técnica
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Prioridad en soporte
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="text-center">
+                @if (isCurrentUserPlan(2)) {
+                  <div class="current-plan-indicator">
+                    <span class="badge bg-success py-2 px-3">
+                      <i class="bi bi-check-circle me-1"></i>Plan Actual
+                    </span>
+                  </div>
+                } @else if (hasActiveSubscription) {
+                  @if (isUpgrade(19.99)) {
+                    <button class="btn btn-primary w-100" (click)="changePlan(2, 19.99, 'Avanzado'); $event.stopPropagation()">
+                      <i class="bi bi-arrow-up-circle me-2"></i>Mejorar Plan
+                    </button>
+                    <p class="text-muted mt-2 small mb-0">
+                      Mejorarás de {{ getCurrentPlanName() }} a Avanzado
+                    </p>
+                  } @else {
+                    <button class="btn btn-outline-primary w-100" (click)="changePlan(1, 9.99, 'Básico'); $event.stopPropagation()">
+                      <i class="bi bi-arrow-down-circle me-2"></i>Cambiar Plan
+                    </button>
+                    <p class="text-muted mt-2 small mb-0">
+                      Cambiarás de {{ getCurrentPlanName() }} a Avanzado
+                    </p>
+                  }
+                } @else {
+                  @if (selectedPlanId === 2) {
+                    <a [routerLink]="['/subscription/checkout', 2]" class="btn btn-primary w-100">
+                      <i class="bi bi-credit-card me-2"></i>Seleccionar Plan
+                    </a>
+                  } @else {
+                    <button class="btn btn-outline-primary w-100" (click)="selectPlan(2)">
+                      Seleccionar
+                    </button>
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Plan Autodidacta (próximamente) -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="plan-card h-100 standalone-plan">
+            <div class="upcoming-badge">PRÓXIMAMENTE</div>
+            
+            <div class="plan-header p-4 text-center">
+              <h3 class="plan-name mb-3">Autodidacta</h3>
+              <div class="price mb-2">
+                <span class="currency">€</span>
+                <span class="amount">14.99</span>
+                <span class="period">/mes</span>
+              </div>
+              <p class="plan-description text-muted mb-0">Crea y gestiona tus propias rutinas</p>
+            </div>
+            
+            <div class="plan-body p-4">
+              <div class="plan-features mb-4">
+                <h6 class="mb-3">
+                  <i class="bi bi-calendar-week me-2"></i>Flexible
+                </h6>
+                <ul class="list-unstyled">
+                  <li class="mb-2">
+                    <i class="bi bi-plus-circle-fill text-secondary me-2"></i>
+                    Crea tus propias rutinas
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-plus-circle-fill text-secondary me-2"></i>
+                    Sin dependencia de entrenador
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-plus-circle-fill text-secondary me-2"></i>
+                    Biblioteca de ejercicios personal
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-plus-circle-fill text-secondary me-2"></i>
+                    Estadísticas avanzadas
+                  </li>
+                  <li class="mb-2">
+                    <i class="bi bi-plus-circle-fill text-secondary me-2"></i>
+                    Exporta tus rutinas
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="text-center">
+                <div class="upcoming-indicator mt-3">
+                  <span class="badge bg-warning text-dark py-2 px-3">
+                    <i class="bi bi-clock me-1"></i>Próximamente
+                  </span>
+                  <p class="text-muted mt-2 small mb-0">
+                    Disponible en futuras actualizaciones
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-        }
+        </div>
       </div>
       
       <div class="row mt-5">
@@ -82,7 +252,8 @@
                 <h5 class="alert-heading mb-2">Información importante</h5>
                 <p class="mb-0">
                   • Los planes se renuevan automáticamente cada mes<br>
-                  • Puedes cancelar en cualquier momento<br>
+                  • Puedes cambiar o cancelar en cualquier momento<br>
+                  • Cambios de plan aplican prorrateo automático<br>
                   • Acceso inmediato después del pago<br>
                   • Soporte 24/7 incluido
                 </p>
@@ -94,3 +265,58 @@
     }
   </div>
 </section>
+
+<!-- Modal para cambio de plan - VERSIÓN CORREGIDA -->
+@if (showChangePlanModal) {
+  <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);" tabindex="-1" (click)="onModalClick($event)">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-arrow-left-right me-2"></i>Confirmar Cambio de Plan
+          </h5>
+          <button type="button" class="btn-close" (click)="closeChangePlanModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <h4>¿Cambiar de {{ getCurrentPlanName() }} a {{ changePlanName }}?</h4>
+          </div>
+          
+          <div class="change-plan-details">
+            <div class="row mb-3">
+              <div class="col-6 text-center">
+                <div class="current-plan-box p-3 border rounded">
+                  <h6>Plan Actual</h6>
+                  <h4 class="text-primary">{{ currentPlanPrice }}€</h4>
+                  <small class="text-muted">{{ getCurrentPlanName() }}</small>
+                </div>
+              </div>
+              <div class="col-6 text-center">
+                <div class="new-plan-box p-3 border rounded bg-light">
+                  <h6>Nuevo Plan</h6>
+                  <h4 class="text-success">{{ changePlanPrice }}€</h4>
+                  <small class="text-muted">{{ changePlanName }}</small>
+                </div>
+              </div>
+            </div>
+            
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Nota:</strong> Los cambios de plan aplican prorrateo automático.
+              Se cobrará solo la diferencia proporcional al tiempo restante de tu suscripción actual.
+            </div>
+            
+            <div class="d-grid gap-2 mt-4">
+              <button class="btn btn-primary" (click)="proceedToCheckout(changePlanId!)" [disabled]="!changePlanId">
+                <i class="bi bi-check-circle me-2"></i>Confirmar Cambio
+              </button>
+              <button class="btn btn-outline-secondary" (click)="closeChangePlanModal()">
+                <i class="bi bi-x-circle me-2"></i>Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

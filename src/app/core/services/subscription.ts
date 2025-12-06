@@ -91,13 +91,13 @@ export class SubscriptionService {
     );
   }
 
-  // Simular pago (solo para desarrollo)
+  /* Simular pago (solo para desarrollo)
   simulatePayment(planId: number): Observable<{ exito: boolean; message: string; suscripcion: Suscripcion }> {
     return this.http.post<{ exito: boolean; message: string; suscripcion: Suscripcion }>(
       `${this.apiUrl}/suscripciones/simular`,
       { plan_id: planId }
     );
-  }
+  }*/
 
   // Crear orden de PayPal
   createPayPalOrder(data: CreateSubscriptionDto): Observable<{
@@ -128,4 +128,50 @@ export class SubscriptionService {
       `${this.apiUrl}/paypal/check-order-status/${orderId}`
     );
   }
+
+  // Obtener clave pública de Stripe desde backend
+    getStripePublicKey(): Observable<{ public_key: string; currency: string; country: string }> {
+      return this.http.get<{ public_key: string; currency: string; country: string }>(
+        `${this.apiUrl}/stripe/public-key`
+      );
+    }
+
+    // Stripe Payment Intent
+    createStripePaymentIntent(data: {
+      plan_id: number;
+      datos_facturacion?: any;
+      save_payment_method?: boolean;
+    }): Observable<{
+      message: string;
+      payment_intent: {
+        id: string;
+        client_secret: string;
+        amount: number;
+        currency: string;
+        customer: string;
+      };
+      suscripcion: Suscripcion;
+    }> {
+      return this.http.post<{
+        message: string;
+        payment_intent: {
+          id: string;
+          client_secret: string;
+          amount: number;
+          currency: string;
+          customer: string;
+        };
+        suscripcion: Suscripcion;
+      }>(`${this.apiUrl}/stripe/create-payment-intent`, data);
+    }
+
+    confirmStripePayment(paymentData: {
+      payment_intent_id: string;
+      payment_method_id: string;
+    }): Observable<{ exito: boolean; message: string; suscripcion: Suscripcion }> {
+      return this.http.post<{ exito: boolean; message: string; suscripcion: Suscripcion }>(
+        `${this.apiUrl}/stripe/confirm-payment`,
+        paymentData
+      );
+    }
 }

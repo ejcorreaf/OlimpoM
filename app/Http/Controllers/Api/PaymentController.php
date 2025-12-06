@@ -7,6 +7,7 @@ use App\Models\Plan;
 use App\Models\Suscripcion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaymentController extends Controller
@@ -46,6 +47,11 @@ class PaymentController extends Controller
      */
     public function createOrder(Request $request)
     {
+        Log::info('CreateOrder PayPal llamado', [
+            'plan_id' => $request->plan_id,
+            'user_id' => Auth::id()
+        ]);
+
         $request->validate([
             'plan_id' => 'required|exists:planes,id',
             'datos_facturacion' => 'nullable|array',
@@ -61,11 +67,19 @@ class PaymentController extends Controller
             ], 403);
         }
 
-        // Verificar si ya tiene suscripción activa
-        if ($usuario->tieneSuscripcionActiva()) {
-            return response()->json([
-                'message' => 'Ya tienes una suscripción activa'
-            ], 422);
+        // CORRECCIÓN: Permitir cambiar de plan si ya tiene suscripción activa
+        $tieneSuscripcionActiva = $usuario->tieneSuscripcionActiva();
+
+        if ($tieneSuscripcionActiva) {
+            Log::info('Usuario quiere cambiar de plan via PayPal', [
+                'user_id' => $usuario->id,
+                'plan_actual_id' => $usuario->plan_id,
+                'nuevo_plan_id' => $plan->id
+            ]);
+
+            // Cancelar suscripción actual antes de crear nueva
+            $usuario->cancelarSuscripcion();
+            Log::info('Suscripción anterior cancelada para cambio de plan via PayPal');
         }
 
         // Crear orden en PayPal
@@ -76,7 +90,7 @@ class PaymentController extends Controller
                     'reference_id' => 'plan_' . $plan->id . '_user_' . $usuario->id,
                     'amount' => [
                         'currency_code' => config('paypal.currency', 'EUR'),
-                        'value' => number_format($plan->precio, 2, '.', '')
+                        'value' => number_format($plan->precio, 2, '.', '') // PayPal usa decimales
                     ],
                     'description' => $plan->nombre . ' - ' . $plan->descripcion,
                 ]
@@ -103,23 +117,37 @@ class PaymentController extends Controller
                     'estado' => 'pendiente',
                     'metodo_pago' => 'paypal',
                     'datos_facturacion' => $request->datos_facturacion,
-                    'transaccion_id' => $response['id']
+                    'transaccion_id' => $response['id'],
+                    'es_cambio_plan' => $tieneSuscripcionActiva // Marcar si es cambio
+                ]);
+
+                Log::info('Orden PayPal creada', [
+                    'order_id' => $response['id'],
+                    'suscripcion_id' => $suscripcion->id,
+                    'es_cambio_plan' => $tieneSuscripcionActiva
                 ]);
 
                 return response()->json([
-                    'message' => 'Orden creada exitosamente',
+                    'message' => $tieneSuscripcionActiva ? 'Cambio de plan iniciado' : 'Orden creada exitosamente',
+                    'es_cambio_plan' => $tieneSuscripcionActiva,
                     'order_id' => $response['id'],
                     'approval_url' => collect($response['links'])->firstWhere('rel', 'approve')['href'],
                     'suscripcion' => $suscripcion
                 ]);
             }
 
+            Log::error('Error creando orden PayPal', ['response' => $response]);
             return response()->json([
                 'message' => 'Error al crear la orden de PayPal',
                 'error' => $response
             ], 500);
 
         } catch (\Exception $e) {
+            Log::error('Error en createOrder PayPal', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'message' => 'Error al procesar el pago',
                 'error' => $e->getMessage()
@@ -132,16 +160,19 @@ class PaymentController extends Controller
      */
     public function captureOrder(Request $request, $orderId)
     {
+        Log::info('CaptureOrder PayPal llamado', ['order_id' => $orderId]);
+
         try {
             // Capturar el pago en PayPal
             $response = $this->provider->capturePaymentOrder($orderId);
 
-            // Buscar la suscripción pendiente PRIMERO
+            // Buscar la suscripción pendiente
             $suscripcion = Suscripcion::where('transaccion_id', $orderId)
                 ->with('plan', 'usuario')
                 ->first();
 
             if (!$suscripcion) {
+                Log::error('Suscripción no encontrada para PayPal', ['order_id' => $orderId]);
                 return response()->json([
                     'exito' => false,
                     'message' => 'Suscripción no encontrada'
@@ -149,6 +180,11 @@ class PaymentController extends Controller
             }
 
             if (isset($response['status']) && $response['status'] === 'COMPLETED') {
+                Log::info('Pago PayPal completado', [
+                    'suscripcion_id' => $suscripcion->id,
+                    'es_cambio_plan' => $suscripcion->es_cambio_plan ?? false
+                ]);
+
                 // Activar suscripción
                 $suscripcion->update([
                     'estado' => 'activa',
@@ -169,13 +205,24 @@ class PaymentController extends Controller
                     'plan_id' => $suscripcion->plan_id
                 ]);
 
+                Log::info('Suscripción activada via PayPal', [
+                    'user_id' => $suscripcion->usuario->id,
+                    'es_cambio_plan' => $suscripcion->es_cambio_plan ?? false
+                ]);
+
                 return response()->json([
                     'exito' => true,
-                    'message' => 'Pago completado exitosamente',
+                    'message' => $suscripcion->es_cambio_plan ? 'Cambio de plan completado' : 'Pago completado exitosamente',
+                    'es_cambio_plan' => $suscripcion->es_cambio_plan ?? false,
                     'suscripcion' => $suscripcion->load('plan'),
                     'paypal_response' => $response
                 ]);
             }
+
+            Log::warning('Pago PayPal no completado', [
+                'status' => $response['status'] ?? 'unknown',
+                'suscripcion_id' => $suscripcion->id
+            ]);
 
             return response()->json([
                 'exito' => false,
@@ -184,6 +231,12 @@ class PaymentController extends Controller
             ], 400);
 
         } catch (\Exception $e) {
+            Log::error('Error en captureOrder PayPal', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'order_id' => $orderId
+            ]);
+
             return response()->json([
                 'exito' => false,
                 'message' => 'Error al capturar el pago',
@@ -244,12 +297,8 @@ class PaymentController extends Controller
         $payload = $request->all();
         $eventType = $payload['event_type'] ?? null;
 
-        // Verificar la firma del webhook (importante para producción)
-        // $headers = $request->headers->all();
-
         switch ($eventType) {
             case 'PAYMENT.CAPTURE.COMPLETED':
-                // Procesar pago completado
                 $orderId = $payload['resource']['supplementary_data']['related_ids']['order_id'] ?? null;
                 if ($orderId) {
                     $this->captureOrder(new Request(), $orderId);
@@ -258,7 +307,6 @@ class PaymentController extends Controller
 
             case 'PAYMENT.CAPTURE.DENIED':
             case 'PAYMENT.CAPTURE.REVERSED':
-                // Procesar pago rechazado o revertido
                 $orderId = $payload['resource']['supplementary_data']['related_ids']['order_id'] ?? null;
                 if ($orderId) {
                     $suscripcion = Suscripcion::where('transaccion_id', $orderId)->first();

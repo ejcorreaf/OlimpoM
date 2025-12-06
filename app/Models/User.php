@@ -154,4 +154,88 @@ class User extends Authenticatable implements MustVerifyEmail
             'plan_id' => null
         ]);
     }
+
+    public function cambiarPlan($nuevoPlanId, $metodoPago = 'tarjeta', $datosFacturacion = null)
+    {
+        $planAnterior = $this->plan;
+        $nuevoPlan = Plan::findOrFail($nuevoPlanId);
+
+        // Verificar si ya tiene este plan
+        if ($this->plan_id == $nuevoPlanId) {
+            throw new \Exception('Ya tienes este plan activo');
+        }
+
+        // Calcular días restantes de la suscripción actual
+        $diasRestantes = 0;
+        if ($this->suscripcion_expira_en) {
+            $diasRestantes = now()->diffInDays($this->suscripcion_expira_en, false);
+            if ($diasRestantes < 0) $diasRestantes = 0;
+        }
+
+        // Calcular prorrateo
+        $precioDiarioAnterior = $planAnterior ? ($planAnterior->precio / 30) : 0;
+        $precioDiarioNuevo = $nuevoPlan->precio / 30;
+        $credito = $diasRestantes * $precioDiarioAnterior;
+        $costoNuevoPlan = $diasRestantes * $precioDiarioNuevo;
+        $diferencia = $costoNuevoPlan - $credito;
+
+        // Si la diferencia es negativa, es un downgrade y aplica crédito
+        // Si es positiva, es un upgrade y se cobra la diferencia
+        $montoACobrar = max(0, $diferencia);
+        $creditoAplicado = max(0, -$diferencia);
+
+        Log::info('Cálculo cambio de plan', [
+            'dias_restantes' => $diasRestantes,
+            'precio_anterior' => $planAnterior?->precio,
+            'precio_nuevo' => $nuevoPlan->precio,
+            'monto_a_cobrar' => $montoACobrar,
+            'credito_aplicado' => $creditoAplicado,
+            'es_upgrade' => $montoACobrar > 0
+        ]);
+
+        // Si es downgrade y hay crédito, no se cobra nada
+        if ($creditoAplicado > 0 && $montoACobrar == 0) {
+            // Cambio gratuito (downgrade con crédito)
+            $this->actualizarPlan($nuevoPlanId, $this->suscripcion_expira_en);
+            return [
+                'es_gratuito' => true,
+                'credito_aplicado' => $creditoAplicado,
+                'monto_cobrado' => 0
+            ];
+        }
+
+        // Si hay que cobrar, devolver los datos para el pago
+        return [
+            'es_upgrade' => $montoACobrar > 0,
+            'monto_a_cobrar' => $montoACobrar,
+            'credito_aplicado' => $creditoAplicado,
+            'dias_restantes' => $diasRestantes,
+            'plan_anterior' => $planAnterior,
+            'nuevo_plan' => $nuevoPlan
+        ];
+    }
+
+    private function actualizarPlan($planId, $fechaExpiracion = null)
+    {
+        // Actualizar suscripción existente
+        $suscripcion = $this->suscripcionActiva()->first();
+        if ($suscripcion) {
+            $suscripcion->update([
+                'plan_id' => $planId,
+                'es_cambio_plan' => true,
+                'datos_cambio' => [
+                    'fecha_cambio' => now(),
+                    'plan_anterior_id' => $this->plan_id
+                ]
+            ]);
+        }
+
+        // Actualizar usuario
+        $this->update([
+            'plan_id' => $planId,
+            'suscripcion_expira_en' => $fechaExpiracion ?: now()->addDays(30)
+        ]);
+
+        return $suscripcion;
+    }
 }

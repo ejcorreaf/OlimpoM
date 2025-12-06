@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\MensajeController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\SuscripcionController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -217,6 +218,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Verificar estado de pago
     Route::get('/suscripciones/{intencionPagoId}/estado', [SuscripcionController::class, 'estado']);
+
+    // Añade esta ruta dentro del grupo de suscripciones
+    Route::post('/suscripciones/cambiar-plan', [SuscripcionController::class, 'cambiarPlan']);
 });
 // =====================================================
 // RUTAS PAYPAL
@@ -228,3 +232,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/paypal/check-order-status/{orderId}', [PaymentController::class, 'checkOrderStatus']);
     Route::post('/paypal/webhook', [PaymentController::class, 'handleWebhook']);
 });
+
+// =====================================================
+// RUTAS STRIPE
+// =====================================================
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/stripe/create-payment-intent', [StripeController::class, 'createPaymentIntent']);
+    Route::post('/stripe/confirm-payment', [StripeController::class, 'confirmPayment']);
+    Route::post('/stripe/cancel-payment', [StripeController::class, 'cancelPayment']);
+    Route::get('/stripe/payment-methods', [StripeController::class, 'getPaymentMethods']);
+    Route::post('/stripe/create-customer', [StripeController::class, 'createCustomer']);
+    Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
+    Route::get('/stripe/public-key', [StripeController::class, 'getPublicKey']);
+
+    // Ruta de diagnóstico (solo desarrollo)
+    if (app()->environment('local')) {
+        Route::get('/stripe/diagnose', [StripeController::class, 'diagnose']);
+    }
+});
+
+

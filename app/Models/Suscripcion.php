@@ -19,13 +19,18 @@ class Suscripcion extends Model
         'expira_en',
         'metodo_pago',
         'transaccion_id',
-        'datos_facturacion'
+        'datos_facturacion',
+        'datos_pago',
+        'es_cambio_plan'
     ];
 
+// Agregar al array $casts
     protected $casts = [
         'inicio_en' => 'datetime',
         'expira_en' => 'datetime',
-        'datos_facturacion' => 'array'
+        'datos_facturacion' => 'array',
+        'datos_pago' => 'array',
+        'es_cambio_plan' => 'boolean'
     ];
 
     // Scopes

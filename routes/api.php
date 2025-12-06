@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\AdminRutinasController;
 use App\Http\Controllers\Api\Admin\AdminUsuariosController;
 use App\Http\Controllers\Api\Entrenador\TraineesController;
 use App\Http\Controllers\Api\MensajeController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\SuscripcionController;
@@ -216,4 +217,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Verificar estado de pago
     Route::get('/suscripciones/{intencionPagoId}/estado', [SuscripcionController::class, 'estado']);
+});
+// =====================================================
+// RUTAS PAYPAL
+// =====================================================
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/paypal/create-order', [PaymentController::class, 'createOrder']);
+    Route::post('/paypal/capture-order/{orderId}', [PaymentController::class, 'captureOrder']);
+    Route::post('/paypal/cancel-order', [PaymentController::class, 'cancelOrder']);
+    Route::get('/paypal/check-order-status/{orderId}', [PaymentController::class, 'checkOrderStatus']);
+    Route::post('/paypal/webhook', [PaymentController::class, 'handleWebhook']);
 });

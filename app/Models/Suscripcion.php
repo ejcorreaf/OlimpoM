@@ -14,6 +14,7 @@ class Suscripcion extends Model
     protected $fillable = [
         'usuario_id',
         'plan_id',
+        'plan_anterior_id',
         'estado',
         'inicio_en',
         'expira_en',
@@ -62,6 +63,11 @@ class Suscripcion extends Model
     public function plan()
     {
         return $this->belongsTo(Plan::class, 'plan_id');
+    }
+
+    public function planAnterior()
+    {
+        return $this->belongsTo(Plan::class, 'plan_anterior_id');
     }
 
     // Helpers

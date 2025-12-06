@@ -67,19 +67,20 @@ class PaymentController extends Controller
             ], 403);
         }
 
-        // CORRECCIÓN: Permitir cambiar de plan si ya tiene suscripción activa
+        // CORRECCIÓN IMPORTANTE: No cancelar suscripción actual aquí
         $tieneSuscripcionActiva = $usuario->tieneSuscripcionActiva();
+        $esCambioPlan = $tieneSuscripcionActiva && $usuario->plan_id != $plan->id;
 
-        if ($tieneSuscripcionActiva) {
-            Log::info('Usuario quiere cambiar de plan via PayPal', [
+        if ($esCambioPlan) {
+            Log::info('Cambio de plan via PayPal detectado - NO cancelar suscripción actual', [
                 'user_id' => $usuario->id,
                 'plan_actual_id' => $usuario->plan_id,
-                'nuevo_plan_id' => $plan->id
+                'nuevo_plan_id' => $plan->id,
+                'es_upgrade' => $plan->precio > $usuario->plan->precio
             ]);
 
-            // Cancelar suscripción actual antes de crear nueva
-            $usuario->cancelarSuscripcion();
-            Log::info('Suscripción anterior cancelada para cambio de plan via PayPal');
+            // IMPORTANTE: NO cancelamos la suscripción actual aquí
+            // Solo se cancelará después de que el nuevo pago sea exitoso
         }
 
         // Crear orden en PayPal
@@ -90,7 +91,7 @@ class PaymentController extends Controller
                     'reference_id' => 'plan_' . $plan->id . '_user_' . $usuario->id,
                     'amount' => [
                         'currency_code' => config('paypal.currency', 'EUR'),
-                        'value' => number_format($plan->precio, 2, '.', '') // PayPal usa decimales
+                        'value' => number_format($plan->precio, 2, '.', '')
                     ],
                     'description' => $plan->nombre . ' - ' . $plan->descripcion,
                 ]
@@ -118,18 +119,20 @@ class PaymentController extends Controller
                     'metodo_pago' => 'paypal',
                     'datos_facturacion' => $request->datos_facturacion,
                     'transaccion_id' => $response['id'],
-                    'es_cambio_plan' => $tieneSuscripcionActiva // Marcar si es cambio
+                    'es_cambio_plan' => $esCambioPlan, // Marcar si es cambio
+                    'plan_anterior_id' => $esCambioPlan ? $usuario->plan_id : null // Guardar plan anterior
                 ]);
 
                 Log::info('Orden PayPal creada', [
                     'order_id' => $response['id'],
                     'suscripcion_id' => $suscripcion->id,
-                    'es_cambio_plan' => $tieneSuscripcionActiva
+                    'es_cambio_plan' => $esCambioPlan,
+                    'plan_anterior_id' => $esCambioPlan ? $usuario->plan_id : null
                 ]);
 
                 return response()->json([
-                    'message' => $tieneSuscripcionActiva ? 'Cambio de plan iniciado' : 'Orden creada exitosamente',
-                    'es_cambio_plan' => $tieneSuscripcionActiva,
+                    'message' => $esCambioPlan ? 'Cambio de plan iniciado' : 'Orden creada exitosamente',
+                    'es_cambio_plan' => $esCambioPlan,
                     'order_id' => $response['id'],
                     'approval_url' => collect($response['links'])->firstWhere('rel', 'approve')['href'],
                     'suscripcion' => $suscripcion
@@ -180,10 +183,36 @@ class PaymentController extends Controller
             }
 
             if (isset($response['status']) && $response['status'] === 'COMPLETED') {
+                $esCambioPlan = $suscripcion->es_cambio_plan ?? false;
+                $planAnteriorId = $suscripcion->plan_anterior_id ?? null;
+
                 Log::info('Pago PayPal completado', [
                     'suscripcion_id' => $suscripcion->id,
-                    'es_cambio_plan' => $suscripcion->es_cambio_plan ?? false
+                    'es_cambio_plan' => $esCambioPlan,
+                    'plan_anterior_id' => $planAnteriorId
                 ]);
+
+                // SOLO si es cambio de plan y el pago fue exitoso, cancelar la anterior
+                if ($esCambioPlan && $planAnteriorId) {
+                    Log::info('Cambio de plan exitoso - Cancelando suscripción anterior', [
+                        'user_id' => $suscripcion->usuario_id,
+                        'plan_anterior_id' => $planAnteriorId,
+                        'nuevo_plan_id' => $suscripcion->plan_id
+                    ]);
+
+                    // Buscar y cancelar suscripción anterior activa
+                    $suscripcionAnterior = Suscripcion::where('usuario_id', $suscripcion->usuario_id)
+                        ->where('plan_id', $planAnteriorId)
+                        ->where('estado', 'activa')
+                        ->first();
+
+                    if ($suscripcionAnterior) {
+                        $suscripcionAnterior->update(['estado' => 'cancelada']);
+                        Log::info('Suscripción anterior cancelada', [
+                            'suscripcion_anterior_id' => $suscripcionAnterior->id
+                        ]);
+                    }
+                }
 
                 // Activar suscripción
                 $suscripcion->update([
@@ -207,13 +236,13 @@ class PaymentController extends Controller
 
                 Log::info('Suscripción activada via PayPal', [
                     'user_id' => $suscripcion->usuario->id,
-                    'es_cambio_plan' => $suscripcion->es_cambio_plan ?? false
+                    'es_cambio_plan' => $esCambioPlan
                 ]);
 
                 return response()->json([
                     'exito' => true,
-                    'message' => $suscripcion->es_cambio_plan ? 'Cambio de plan completado' : 'Pago completado exitosamente',
-                    'es_cambio_plan' => $suscripcion->es_cambio_plan ?? false,
+                    'message' => $esCambioPlan ? 'Cambio de plan completado' : 'Pago completado exitosamente',
+                    'es_cambio_plan' => $esCambioPlan,
                     'suscripcion' => $suscripcion->load('plan'),
                     'paypal_response' => $response
                 ]);
@@ -247,6 +276,7 @@ class PaymentController extends Controller
 
     /**
      * Cancelar orden (cuando el usuario cancela en PayPal)
+     * IMPORTANTE: NO cancelar la suscripción actual si es cambio de plan
      */
     public function cancelOrder(Request $request)
     {
@@ -254,20 +284,45 @@ class PaymentController extends Controller
             'order_id' => 'required'
         ]);
 
-        $suscripcion = Suscripcion::where('transaccion_id', $request->order_id)->first();
+        Log::info('CancelOrder PayPal llamado', [
+            'order_id' => $request->order_id,
+            'user_id' => Auth::id()
+        ]);
 
-        if ($suscripcion) {
-            $suscripcion->update([
+        $usuario = Auth::user();
+        $suscripcionPendiente = Suscripcion::where('transaccion_id', $request->order_id)
+            ->where('estado', 'pendiente')
+            ->first();
+
+        if ($suscripcionPendiente) {
+            $esCambioPlan = $suscripcionPendiente->es_cambio_plan ?? false;
+
+            Log::info('Cancelando suscripción pendiente de PayPal', [
+                'suscripcion_id' => $suscripcionPendiente->id,
+                'es_cambio_plan' => $esCambioPlan,
+                'plan_anterior_id' => $suscripcionPendiente->plan_anterior_id ?? null
+            ]);
+
+            // Solo marcar como cancelada la suscripción PENDIENTE
+            // NO cancelar la suscripción ACTIVA actual si es cambio de plan
+            $suscripcionPendiente->update([
                 'estado' => 'cancelada',
-                'datos_pago' => array_merge($suscripcion->datos_pago ?? [], [
+                'datos_pago' => array_merge($suscripcionPendiente->datos_pago ?? [], [
                     'cancelled_at' => now(),
-                    'reason' => 'user_cancelled'
+                    'reason' => 'user_cancelled_paypal',
+                    'es_cambio_plan' => $esCambioPlan
                 ])
+            ]);
+
+            Log::info('Suscripción pendiente cancelada - SUSCRIPCIÓN ACTUAL MANTENIDA', [
+                'user_id' => $usuario->id,
+                'tiene_suscripcion_activa' => $usuario->tieneSuscripcionActiva(),
+                'plan_actual_id' => $usuario->plan_id
             ]);
         }
 
         return response()->json([
-            'message' => 'Orden cancelada',
+            'message' => 'Orden cancelada - Tu suscripción actual sigue activa',
             'redirect_url' => config('app.frontend_url') . '/subscription/cancel'
         ]);
     }
@@ -292,16 +347,26 @@ class PaymentController extends Controller
         }
     }
 
+    /**
+     * Manejar webhook de PayPal
+     */
     public function handleWebhook(Request $request)
     {
         $payload = $request->all();
         $eventType = $payload['event_type'] ?? null;
 
+        Log::info('PayPal Webhook recibido', [
+            'event_type' => $eventType,
+            'payload' => $payload
+        ]);
+
         switch ($eventType) {
             case 'PAYMENT.CAPTURE.COMPLETED':
                 $orderId = $payload['resource']['supplementary_data']['related_ids']['order_id'] ?? null;
                 if ($orderId) {
-                    $this->captureOrder(new Request(), $orderId);
+                    // Llamar al método captureOrder para procesar
+                    $captureRequest = new Request();
+                    $this->captureOrder($captureRequest, $orderId);
                 }
                 break;
 
@@ -311,7 +376,12 @@ class PaymentController extends Controller
                 if ($orderId) {
                     $suscripcion = Suscripcion::where('transaccion_id', $orderId)->first();
                     if ($suscripcion) {
+                        // Solo cancelar la suscripción pendiente
                         $suscripcion->update(['estado' => 'cancelada']);
+                        Log::info('Suscripción cancelada por webhook PayPal', [
+                            'order_id' => $orderId,
+                            'event_type' => $eventType
+                        ]);
                     }
                 }
                 break;

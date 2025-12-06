@@ -4,14 +4,12 @@ use App\Http\Controllers\Api\Admin\AdminAsignacionController;
 use App\Http\Controllers\Api\Admin\AdminEjerciciosController;
 use App\Http\Controllers\Api\Admin\AdminRutinasController;
 use App\Http\Controllers\Api\Admin\AdminUsuariosController;
-use App\Http\Controllers\Api\Entrenador\TraineesController;
 use App\Http\Controllers\Api\MensajeController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\Api\SuscripcionController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -82,18 +80,20 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // =====================================================
-// RUTAS MENSAJES (usuarios verificados)
+// RUTAS MENSAJES
 // =====================================================
 Route::middleware(['auth:sanctum', 'verified'])
     ->prefix('mensajes')
     ->group(function () {
         Route::get('/conversaciones', [MensajeController::class, 'getConversaciones']);
         Route::get('/conversacion/{userId}', [MensajeController::class, 'getConversacion']);
+        Route::get('/conversacion/{userId}/nuevos', [MensajeController::class, 'getMensajesNuevos']);
+        Route::get('/conversacion/{userId}/verificar', [MensajeController::class, 'verificarMensajesNuevos']);
         Route::post('/enviar', [MensajeController::class, 'enviarMensaje']);
     });
 
 // ============================
-// Verificación de Email - VERSIÓN CORREGIDA
+// Verificación de Email
 // ============================
 
 Route::get('/verify-email/{id}/{hash}', function ($id, $hash) {

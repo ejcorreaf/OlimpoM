@@ -34,7 +34,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/news-detail/news-detail').then(m => m.NewsDetailComponent) 
   },
   // ============================================
-  // RUTAS DE SUSCRIPCIÓN (NUEVAS)
+  // RUTAS DE SUSCRIPCIÓN
   // ============================================
   {
   path: 'subscription',
@@ -58,7 +58,9 @@ export const routes: Routes = [
     }
   ]
 },
-  // Rutas para Admin
+  // ============================================
+  // RUTAS DE ADMIN
+  // ============================================
   {
     path: 'admin',
     canActivate: [authGuard, roleGuard],
@@ -128,7 +130,9 @@ export const routes: Routes = [
     ]
   },
 
-  // Rutas para Entrenador
+  // ============================================
+  // RUTAS DE ENTRENADOR
+  // ============================================
   {
     path: 'entrenador',
     canActivate: [authGuard, roleGuard, emailVerifiedGuard],
@@ -192,33 +196,36 @@ export const routes: Routes = [
     ]
   },
 
-  // Rutas para Trainee
+  // ============================================
+  // RUTAS DE TRAINEE
+  // ============================================
   {
     path: 'trainee',
-    canActivate: [authGuard, roleGuard, emailVerifiedGuard, subscriptionGuard],
+    canActivate: [authGuard, roleGuard, emailVerifiedGuard],
     data: { role: 'trainee' },
     children: [
-      // Home de trainee
       {
         path: 'home',
         loadComponent: () => import('./features/trainee/trainee-home/trainee-home').then(m => m.TraineeHomeComponent)
       },
-      // Rutinas
       {
         path: 'rutinas',
+        canActivate: [subscriptionGuard],
         loadComponent: () => import('./features/trainee/rutinas/rutinas-list/rutinas-list').then(m => m.TraineeRutinasListComponent)
       },
       {
         path: 'rutinas/:id',
+        canActivate: [subscriptionGuard],
         loadComponent: () => import('./features/trainee/rutinas/rutina-detalle/rutina-detalle').then(m => m.TraineeRutinaDetalleComponent)
       },
-      // Chat con entrenador
       {
         path: 'chat',
+        canActivate: [subscriptionGuard],
         loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)
       },
       {
         path: 'chat/:id', 
+        canActivate: [subscriptionGuard],
         loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)
       }
     ]

@@ -1,61 +1,47 @@
-    <section class="pricing-section py-6">
-      <div class="container">
-        <div class="row justify-content-center mb-5">
-          <div class="col-lg-8 text-center">
-            <h2 class="section-title">Planes que se adaptan a ti</h2>
-            <p class="section-subtitle">Elige el plan perfecto para tus necesidades. Todos incluyen acceso gratuito durante 14 días.</p>
-          </div>
-        </div>
-
-        <div class="row justify-content-center">
-          @for (plan of plans; track plan.id) {
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="pricing-card h-100" [class.featured]="plan.featured">
-                @if (plan.featured) {
-                  <div class="featured-badge">MÁS POPULAR</div>
-                }
-                <div class="pricing-header p-4 text-center">
-                  <h3 class="plan-name">{{ plan.name }}</h3>
-                  <div class="price mb-2">
-                    <span class="currency">€</span>
-                    <span class="amount">{{ plan.price }}</span>
-                    <span class="period">/mes</span>
-                  </div>
-                  <p class="plan-description text-muted">{{ plan.description }}</p>
-                </div>
-                <div class="pricing-body p-4">
-                  <ul class="features-list list-unstyled mb-4">
-                    @for (feature of plan.features; track feature) {
-                      <li class="mb-2">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        {{ feature }}
-                      </li>
-                    }
-                  </ul>
-                  <div class="text-center">
-                    @if (plan.id === 'free') {
-                      <a routerLink="/register" class="btn btn-outline-primary w-100">
-                        Comenzar Gratis
-                      </a>
-                    } @else {
-                      <button class="btn btn-primary w-100" (click)="selectPlan(plan)">
-                        Elegir Plan
-                      </button>
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <div class="row mt-5">
-          <div class="col-12 text-center">
-            <p class="text-muted">
-              ¿Necesitas un plan personalizado para tu empresa?
-              <a href="#" class="text-primary text-decoration-none">Contacta con nosotros</a>
-            </p>
-          </div>
-        </div>
+<section class="pricing-section py-6">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <h2 class="section-title">Planes que se adaptan a ti</h2>
+        <p class="section-subtitle">Elige el plan perfecto para tus necesidades.</p>
       </div>
-    </section>
+    </div>
+
+    <div class="row justify-content-center">
+      @for (plan of plans; track plan.id) {
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="pricing-card h-100" 
+               [class.featured]="plan.featured"
+               [class.no-hover]="plan.id === 'gym'"
+               id="plan-{{ plan.id }}">
+            @if (plan.featured) {
+              <div class="featured-badge">Recomendado</div>
+            }
+            @if (plan.id === 'gym') {
+              <div class="coming-soon-badge">Próximamente</div>
+            }
+            <div class="pricing-header p-4 text-center">
+              <h3 class="plan-name">{{ plan.name }}</h3>
+              <div class="price mb-2">
+                <span class="currency">€</span>
+                <span class="amount">{{ plan.price }}</span>
+                <span class="period">/mes</span>
+              </div>
+              <p class="plan-description text-muted">{{ plan.description }}</p>
+            </div>
+            <div class="pricing-body p-4">
+              <ul class="features-list list-unstyled mb-4">
+                @for (feature of plan.features; track feature) {
+                  <li class="mb-2">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    {{ feature }}
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

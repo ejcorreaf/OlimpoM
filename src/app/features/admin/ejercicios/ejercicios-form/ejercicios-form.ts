@@ -78,16 +78,17 @@ export class AdminEjercicioFormComponent implements OnInit {
     
     const formData = new FormData();
     
-    // Para edición, necesitas enviar todos los campos, no solo los modificados
+    // Añadir datos al FormData
     formData.append('nombre', this.ejercicioForm.get('nombre')?.value);
     formData.append('grupo_muscular', this.ejercicioForm.get('grupo_muscular')?.value);
-    formData.append('descripcion', this.ejercicioForm.get('descripcion')?.value);
+    formData.append('descripcion', this.ejercicioForm.get('descripcion')?.value || '');
     
-    // Importante: Para Laravel, cuando usas FormData en actualizaciones
-    formData.append('_method', 'PUT'); // Esto es clave para Laravel
-    
+    // SOLO añadir la foto si se seleccionó una nueva
     if (this.selectedFile) {
       formData.append('foto', this.selectedFile);
+    } else if (this.isEdit) {
+      // Si estamos editando y no se cambió la foto, enviar 'currentFoto' para indicar que debe mantenerse
+      formData.append('currentFoto', this.currentFoto || '');
     }
 
     const request = this.isEdit && this.ejercicioId
@@ -102,12 +103,13 @@ export class AdminEjercicioFormComponent implements OnInit {
       error: (error) => {
         console.error('Error saving ejercicio:', error);
         this.loading = false;
-        // Agrega manejo de errores más específico
-        if (error.error) {
-          console.error('Error details:', error.error);
+        
+        // Manejo de errores más detallado
+        if (error.status === 422) {
+          console.error('Errores de validación:', error.error.errors);
         }
       }
     });
-    }
   }
+}
 }

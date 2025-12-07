@@ -21,7 +21,7 @@ export class FeaturesTabsComponent {
       description: 'Gestiona a todos tus alumnos desde una sola plataforma. Crea rutinas personalizadas, sigue su progreso y comunícate en tiempo real.',
       image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop',
       imageCaption: 'Crea rutinas personalizadas para cada alumno',
-      ctaText: 'Registrarse como Entrenador',
+      ctaText: 'Registrarse',
       ctaLink: '/register',
       features: [
         {
@@ -58,8 +58,6 @@ export class FeaturesTabsComponent {
       description: 'Sigue tus rutinas desde cualquier dispositivo, registra tu progreso y mantén contacto directo con tu entrenador.',
       image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop',
       imageCaption: 'Accede a tus rutinas desde cualquier lugar',
-      ctaText: 'Comenzar como Alumno',
-      ctaLink: '/register',
       features: [
         {
           title: 'Acceso a Rutinas Personalizadas',
@@ -95,8 +93,6 @@ export class FeaturesTabsComponent {
       description: 'Gestiona múltiples entrenadores, clientes y operaciones desde una plataforma centralizada con branding personalizado.',
       image: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600&auto=format&fit=crop',
       imageCaption: 'Gestiona todo tu equipo desde una sola plataforma',
-      ctaText: 'Solicitar Demo Empresarial',
-      ctaLink: '/contact',
       features: [
         {
           title: 'Multi-usuario Avanzado',

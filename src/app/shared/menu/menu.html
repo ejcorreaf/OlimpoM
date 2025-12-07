@@ -12,11 +12,12 @@
     <div id="nav" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto">
 
-        <!-- Siempre visible -->
+        <!-- Siempre visible cuando hay usuario logueado -->
         <li class="nav-item">
           <a class="nav-link" [routerLink]="auth.getUserRole() ? auth.getHomeRouteByRole(auth.getUserRole()) : '/'">Inicio</a>
         </li>
 
+        <!-- Perfil solo visible cuando hay usuario logueado -->
         <li class="nav-item">
           <a class="nav-link" routerLink="/perfil">Perfil</a>
         </li>
@@ -84,7 +85,7 @@
       </ul>
     </div>
   } @else {
-    <!-- Usuario NO logueado -->
+    <!-- Usuario NO logueado - Menú simplificado -->
     <a class="navbar-brand" routerLink="/">Trainplanner</a>
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
@@ -93,12 +94,11 @@
 
     <div id="nav" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto">
+        <!-- Solo Inicio cuando no hay sesión -->
         <li class="nav-item">
           <a class="nav-link" routerLink="/">Inicio</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/perfil">Perfil</a>
-        </li>
+        <!-- NO mostrar Perfil aquí -->
       </ul>
 
       <ul class="navbar-nav">

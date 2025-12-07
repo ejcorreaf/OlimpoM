@@ -3,83 +3,166 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">Panel de Administración</h1>
-        <span class="badge bg-danger">Administrador</span>
+        <span class="badge bg-danger fs-6">Administrador</span>
       </div>
       <p class="lead">Gestiona todos los aspectos de la plataforma</p>
     </div>
   </div>
 
-  <div class="row">
+  <!-- Tarjetas de Administración -->
+  <div class="row mb-4">
     <!-- Gestión de Usuarios -->
     <div class="col-md-4 mb-4">
-      <div class="card h-100 border-primary">
-        <div class="card-body text-center">
-          <i class="bi bi-people-fill display-4 text-primary mb-3"></i>
-          <h5 class="card-title">Gestión de Usuarios</h5>
-          <p class="card-text">Administra usuarios, roles, permisos y accesos de toda la plataforma.</p>
-          <div class="mt-3">
-            <a routerLink="/admin/usuarios" class="btn btn-primary me-2">Ver Usuarios</a>
-            <a routerLink="/admin/usuarios/nuevo" class="btn btn-outline-primary">Nuevo Usuario</a>
+      <div class="card h-100 border-primary shadow-sm">
+        <div class="card-body text-center p-4">
+          <div class="icon-container mb-3">
+            <i class="bi bi-people-fill display-4 text-primary"></i>
+          </div>
+          <h5 class="card-title fw-bold">Gestión de Usuarios</h5>
+          <p class="card-text text-muted mb-4">
+            Administra todos los usuarios, roles, permisos y accesos del sistema
+          </p>
+          <div class="d-flex gap-2">
+            <a routerLink="/admin/usuarios" class="btn btn-primary flex-grow-1">
+              Ver Usuarios
+            </a>
+            <a routerLink="/admin/usuarios/nuevo" class="btn btn-outline-primary">
+              <i class="bi bi-plus-lg"></i>
+            </a>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Gestión de Ejercicios -->
+    <!-- Ejercicios Globales -->
     <div class="col-md-4 mb-4">
-      <div class="card h-100 border-success">
-        <div class="card-body text-center">
-          <i class="bi bi-activity display-4 text-success mb-3"></i>
-          <h5 class="card-title">Ejercicios Globales</h5>
-          <p class="card-text">Gestiona el catálogo completo de ejercicios disponibles en la plataforma.</p>
-          <div class="mt-3">
-            <a routerLink="/admin/ejercicios" class="btn btn-success me-2">Ver Ejercicios</a>
-            <a routerLink="/admin/ejercicios/nuevo" class="btn btn-outline-success">Nuevo Ejercicio</a>
+      <div class="card h-100 border-success shadow-sm">
+        <div class="card-body text-center p-4">
+          <div class="icon-container mb-3">
+            <i class="bi bi-activity display-4 text-success"></i>
+          </div>
+          <h5 class="card-title fw-bold">Ejercicios Globales</h5>
+          <p class="card-text text-muted mb-4">
+            Gestiona el catálogo completo de ejercicios disponibles en la plataforma
+          </p>
+          <div class="d-flex gap-2">
+            <a routerLink="/admin/ejercicios" class="btn btn-success flex-grow-1">
+              Ver Ejercicios
+            </a>
+            <a routerLink="/admin/ejercicios/nuevo" class="btn btn-outline-success">
+              <i class="bi bi-plus-lg"></i>
+            </a>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Gestión de Rutinas -->
+    <!-- Rutinas del Sistema -->
     <div class="col-md-4 mb-4">
-      <div class="card h-100 border-warning">
-        <div class="card-body text-center">
-          <i class="bi bi-clipboard-check display-4 text-warning mb-3"></i>
-          <h5 class="card-title">Rutinas del Sistema</h5>
-          <p class="card-text">Supervisa y gestiona todas las rutinas creadas por entrenadores.</p>
-          <div class="mt-3">
-            <a routerLink="/admin/rutinas" class="btn btn-warning me-2">Ver Rutinas</a>
-            <a routerLink="/admin/rutinas/nuevo" class="btn btn-outline-warning">Nueva Rutina</a>
+      <div class="card h-100 border-warning shadow-sm">
+        <div class="card-body text-center p-4">
+          <div class="icon-container mb-3">
+            <i class="bi bi-clipboard-check display-4 text-warning"></i>
+          </div>
+          <h5 class="card-title fw-bold">Rutinas del Sistema</h5>
+          <p class="card-text text-muted mb-4">
+            Supervisa todas las rutinas creadas por los entrenadores de la plataforma
+          </p>
+          <div class="d-flex gap-2">
+            <a routerLink="/admin/rutinas" class="btn btn-warning flex-grow-1">
+              Ver Rutinas
+            </a>
+            <a routerLink="/admin/rutinas/nuevo" class="btn btn-outline-warning">
+              <i class="bi bi-plus-lg"></i>
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Estadísticas rápidas -->
+  <!-- Información de la Plataforma -->
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">Resumen de la Plataforma</h5>
+      <div class="card border-0 bg-light">
+        <div class="card-body p-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h4 class="card-title mb-3">Bienvenido al Panel de Administración</h4>
+              <p class="card-text mb-4">
+                Desde aquí puedes gestionar todos los aspectos de TrainPlanner. 
+                Como administrador, tienes control completo sobre usuarios, ejercicios, 
+                rutinas y asignaciones. Tu rol es fundamental para mantener la plataforma 
+                funcionando correctamente.
+              </p>
+              <div class="d-flex gap-2 flex-wrap">
+                <a routerLink="/admin/usuarios" class="btn btn-primary">
+                  <i class="bi bi-people-fill me-2"></i>Gestionar Usuarios
+                </a>
+                <a routerLink="/admin/asignaciones" class="btn btn-info">
+                  <i class="bi bi-person-check me-2"></i>Ver Asignaciones
+                </a>
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <i class="bi bi-shield-check display-1 text-primary opacity-75"></i>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="row text-center">
-            <div class="col-md-3">
-              <h3 class="text-primary">150</h3>
-              <p class="text-muted">Usuarios Totales</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consejos para Administradores -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3 class="mb-4">Buenas Prácticas Administrativas</h3>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                  <i class="bi bi-person-gear text-primary fs-4"></i>
+                </div>
+                <h6 class="mb-0">Gestión de Roles</h6>
+              </div>
+              <p class="text-muted small">
+                Asigna cuidadosamente los roles a los usuarios según sus funciones reales 
+                en la plataforma para mantener la seguridad.
+              </p>
             </div>
-            <div class="col-md-3">
-              <h3 class="text-success">45</h3>
-              <p class="text-muted">Ejercicios Activos</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                  <i class="bi bi-check-circle text-success fs-4"></i>
+                </div>
+                <h6 class="mb-0">Verificación</h6>
+              </div>
+              <p class="text-muted small">
+                Verifica periódicamente que los entrenadores tengan las credenciales 
+                adecuadas antes de aprobar sus cuentas.
+              </p>
             </div>
-            <div class="col-md-3">
-              <h3 class="text-warning">89</h3>
-              <p class="text-muted">Rutinas Creadas</p>
-            </div>
-            <div class="col-md-3">
-              <h3 class="text-info">12</h3>
-              <p class="text-muted">Entrenadores Activos</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-warning bg-opacity-10 p-2 rounded me-3">
+                  <i class="bi bi-clock-history text-warning fs-4"></i>
+                </div>
+                <h6 class="mb-0">Monitorización</h6>
+              </div>
+              <p class="text-muted small">
+                Revisa regularmente las asignaciones y la actividad de los usuarios 
+                para detectar cualquier irregularidad temprano.
+              </p>
             </div>
           </div>
         </div>

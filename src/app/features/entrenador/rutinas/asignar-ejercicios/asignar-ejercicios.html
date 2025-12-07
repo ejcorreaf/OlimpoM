@@ -70,44 +70,9 @@
           </button>
         </div>
       </form>
-
-      <!-- Lista de ejercicios actualmente asignados -->
-      @if (ejerciciosAsignados.length > 0) {
-        <div class="mt-4">
-          <h5>Ejercicios Actualmente Asignados</h5>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Ejercicio</th>
-                  <th>Series</th>
-                  <th>Repeticiones</th>
-                  <th>Descanso (s)</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (ejercicio of ejerciciosAsignados; track ejercicio.id) {
-                  <tr>
-                    <td>{{ ejercicio.nombre }}</td>
-                    <td>{{ ejercicio.pivot?.series }}</td>
-                    <td>{{ ejercicio.pivot?.repeticiones }}</td>
-                    <td>{{ ejercicio.pivot?.descanso }}</td>
-                    <td>
-                      <button type="button" class="btn btn-outline-danger btn-sm"
-                              (click)="confirmEliminarEjercicio(ejercicio)">
-                        <i class="bi bi-trash"></i> Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      }
     </div>
   </div>
+  <br><br>
 </div>
 
 @if (showDeleteModal) {

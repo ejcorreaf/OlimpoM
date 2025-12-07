@@ -123,7 +123,7 @@ export class AdminService {
   }
 
   updateEjercicio(id: number, ejercicio: FormData): Observable<Ejercicio> {
-    return this.http.post<Ejercicio>(`${this.apiUrl}/ejercicios/${id}`, ejercicio);
+    return this.http.put<Ejercicio>(`${this.apiUrl}/ejercicios/${id}`, ejercicio);
   }
 
   deleteEjercicio(id: number): Observable<any> {

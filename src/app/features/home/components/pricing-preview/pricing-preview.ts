@@ -1,11 +1,9 @@
-// src/app/features/home/components/pricing-preview/pricing-preview.component.ts
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-pricing-preview',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './pricing-preview.html',
   styleUrl: './pricing-preview.scss'
 })
@@ -13,53 +11,56 @@ export class PricingPreviewComponent {
   plans = [
     {
       id: 'free',
-      name: 'Free',
-      price: '0',
-      description: 'Perfecto para alumnos que quieren comenzar',
+      name: 'Básico',
+      price: '9.99',
+      description: 'Para quienes entrenan 2 días por semana',
       features: [
-        'Acceso como alumno',
-        '1 rutina activa',
+        'Acceso completo a rutinas',
+        'Seguimiento de progreso',
         'Chat con entrenador',
-        'Recordatorios básicos',
-        'App móvil incluida'
+        'Recordatorios automáticos',
       ],
       featured: false
     },
     {
       id: 'trainer',
-      name: 'Trainer',
-      price: '9.99',
-      description: 'Para entrenadores independientes',
+      name: 'Avanzado',
+      price: '19.99',
+      description: 'Para entrenamiento intensivo 5 días por semana',
       features: [
-        'Hasta 10 alumnos',
-        'Rutinas ilimitadas',
-        'Estadísticas avanzadas',
-        'Chat grupal',
-        'Soporte prioritario',
-        'Exportación PDF/Excel'
+        'Todo del plan Básico',
+        'Rutinas personalizadas avanzadas',
+        'Video-guías de ejercicios',
+        'Análisis de técnica',
+        'Prioridad en soporte',
       ],
       featured: true
     },
     {
       id: 'gym',
-      name: 'Gym',
-      price: '29.99',
-      description: 'Para gimnasios y equipos',
+      name: 'Autodidacta',
+      price: '14.99',
+      description: 'Para entrenamiento intensivo 5 días por semana',
       features: [
-        'Usuarios ilimitados',
-        'Branding personalizado',
-        'API de integración',
+        'Crea tus propias rutinas',
+        'Sin dependencia de entrenador',
+        'Biblioteca de ejercicios personal',
         'Reportes avanzados',
-        'Soporte 24/7',
-        'Backup automático',
-        'Migración asistida'
+        'Estadísticas avanzadas',
+        'Exporta tus rutinas'
       ],
       featured: false
     }
   ];
 
   selectPlan(plan: any) {
-    console.log('Plan seleccionado:', plan);
-    alert(`Has seleccionado el plan ${plan.name}. Esta funcionalidad se implementará en la fase de pagos.`);
+  // No permitir seleccionar el plan "gym" (autodidacta)
+  if (plan.id === 'gym') {
+    alert('Este plan estará disponible próximamente.');
+    return;
   }
+  
+  console.log('Plan seleccionado:', plan);
+  alert(`Has seleccionado el plan ${plan.name}. Esta funcionalidad se implementará en la fase de pagos.`);
+}
 }

@@ -79,3 +79,9 @@
     </button>
   </div>
 </div>
+
+<app-success-modal 
+  #successModal
+  [message]="successMessage"
+  (closed)="onSuccessModalClosed()">
+</app-success-modal>

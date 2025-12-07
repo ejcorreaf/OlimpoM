@@ -1,13 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SubscriptionService } from '../../../core/services/subscription';
 import { AuthService } from '../../../core/services/auth';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal';
+import { SuccessModalComponent } from '../../../shared/components/success-modal/success-modal';
 
 @Component({
   selector: 'app-subscription-status',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ConfirmModalComponent, SuccessModalComponent],
   templateUrl: './subscription-status.html',
   styleUrls: ['./subscription-status.scss']
 })
@@ -15,10 +17,17 @@ export class SubscriptionStatusComponent implements OnInit {
   private subscriptionService = inject(SubscriptionService);
   private auth = inject(AuthService);
   
+  @ViewChild(SuccessModalComponent) successModal!: SuccessModalComponent;
+  
   suscripcion: any = null;
   loading = true;
   tieneSuscripcionActiva = false;
   isTrainee = false;
+  
+  // Modal states
+  showConfirmModal = false;
+  confirmMessage = '¿Estás seguro de que quieres cancelar tu suscripción? Perderás acceso a las rutinas.';
+  successMessage = 'Suscripción cancelada correctamente';
 
   ngOnInit() {
     const user = this.auth.getCurrentUser();
@@ -69,7 +78,7 @@ export class SubscriptionStatusComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const classes: { [key: string]: string } = {
-      'activa': 'badge bg-success', //Lo cambié a español para que los estilos funcionen
+      'activa': 'badge bg-success',
       'expirada': 'badge bg-warning',
       'pendiente': 'badge bg-info',
       'cancelada': 'badge bg-secondary',
@@ -78,20 +87,34 @@ export class SubscriptionStatusComponent implements OnInit {
     return classes[status] || 'badge bg-light';
   }
 
-  cancelSubscription() {
-    if (!confirm('¿Estás seguro de que quieres cancelar tu suscripción? Perderás acceso a las rutinas.')) {
-      return;
-    }
+  prepareCancelSubscription() {
+    this.showConfirmModal = true;
+  }
 
+  cancelSubscription() {
+    this.showConfirmModal = false;
     this.subscriptionService.cancelSubscription().subscribe({
       next: () => {
-        alert('Suscripción cancelada correctamente');
-        this.loadSubscription();
+        // Actualizar datos localmente
+        this.actualizarSuscripcionLocalmente();
+        this.successModal.show();
       },
       error: (error) => {
         console.error('Error cancelling subscription:', error);
         alert('Error al cancelar la suscripción');
       }
     });
+  }
+
+  actualizarSuscripcionLocalmente() {
+    if (this.suscripcion) {
+      // Actualizar estado a cancelada
+      this.suscripcion.estado = 'cancelled';
+      this.tieneSuscripcionActiva = false;
+    }
+  }
+
+  onConfirmModalCancel() {
+    this.showConfirmModal = false;
   }
 }

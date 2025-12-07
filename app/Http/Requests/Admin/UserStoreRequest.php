@@ -15,10 +15,19 @@ class UserStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'email' => [
+                'required',
+                'email',
+                'unique:users'
+            ],
+            'password' => 'required|min:8',
             'role' => 'required|in:admin,trainer,trainee',
-            'dni' => 'nullable|string|size:9|unique:users', // CORREGIDO: nullable
+            'dni' => [
+                'nullable',
+                'string',
+                'size:9',
+                'unique:users'
+            ],
             'notes' => 'nullable|string',
             'email_verified' => 'sometimes|boolean'
         ];

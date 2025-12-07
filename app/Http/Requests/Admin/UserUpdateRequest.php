@@ -23,10 +23,10 @@ class UserUpdateRequest extends FormRequest
                 'email',
                 Rule::unique('users')->ignore($userId)
             ],
-            'password' => 'nullable|sometimes|min:8', // CORREGIDO: nullable
+            'password' => 'nullable|sometimes|min:8',
             'role' => 'sometimes|in:admin,trainer,trainee',
             'dni' => [
-                'nullable', // CORREGIDO: nullable para permitir valores vacíos
+                'nullable',
                 'sometimes',
                 'string',
                 'size:9',

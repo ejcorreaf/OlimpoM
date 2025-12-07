@@ -1,60 +1,69 @@
-<div class="container mt-5">
-  <div class="d-flex justify-content-center h-100">
-    <div>
-
-       <!-- Logo -->
-      <div class="d-flex justify-content-center">
-        <div class="brand_logo_container mb-2">
-          <img src="/logo.png" alt="Logo">
-        </div>
-      </div>
-
-
-      <!-- Formulario -->
-      <div class="d-flex justify-content-center">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-
-          <!-- Email -->
-          <div class="input-group mb-2">
-            <span class="input-group-text rounded-0 bg-grey">
-              <i class="bi bi-person"></i>
-            </span>
-            <input
-              formControlName="email"
-              type="email"
-              class="form-control input-lg rounded-0"
-              placeholder="Correo electrónico"
-            >
-          </div>
-
-          <!-- Password -->
-          <div class="input-group mb-2">
-            <span class="input-group-text rounded-0 bg-grey">
-              <i class="bi bi-key"></i>
-            </span>
-            <input
-              formControlName="password"
-              type="password"
-              class="form-control input-lg rounded-0"
-              placeholder="Contraseña"
-            >
-          </div>
-
-          <!-- Error -->
-          <div class="mb-2">
-            @if (error) {
-              <span class="text-danger">{{ error }}</span>
-            }
-          </div>
-
-          <!-- Botón -->
-          <div class="d-flex justify-content-center mt-3">
-            <button type="submit" class="btn bg-primary text-white">Entrar</button>
-          </div>
-
-        </form>
-      </div>
-
-    </div>
+<div class="login-container">
+  <!-- Logo -->
+  <div class="brand_logo_container">
+    <img src="/logo.png" alt="Logo Trainplanner">
   </div>
+
+  <h2>Iniciar Sesión</h2>
+
+  <!-- Formulario -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+    <!-- Email -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-envelope"></i>
+        </span>
+        <input
+          formControlName="email"
+          type="email"
+          class="form-control"
+          placeholder="Correo electrónico"
+          [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+      </div>
+      @if (form.get('email')?.invalid && form.get('email')?.touched) {
+        <small class="text-danger">Introduce un email válido</small>
+      }
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-lock"></i>
+        </span>
+        <input
+          formControlName="password"
+          type="password"
+          class="form-control"
+          placeholder="Contraseña"
+          [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+      </div>
+      @if (form.get('password')?.invalid && form.get('password')?.touched) {
+        <small class="text-danger">La contraseña es obligatoria</small>
+      }
+    </div>
+
+    <!-- Error general -->
+    @if (error) {
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+    }
+
+    <!-- Botón -->
+    <button 
+      type="submit" 
+      class="btn btn-primary mt-3"
+      [disabled]="form.invalid">
+      Iniciar Sesión
+    </button>
+
+    <!-- Enlace a registro -->
+    <div class="register-link">
+      <span>¿No tienes cuenta? </span>
+      <a routerLink="/register">Regístrate aquí</a>
+    </div>
+  </form>
 </div>

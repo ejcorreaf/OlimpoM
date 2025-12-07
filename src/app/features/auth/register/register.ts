@@ -3,18 +3,20 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors }
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PrivacyModalComponent } from '../../../shared/components/privacy-modal/privacy-modal';
 import { DniValidatorDirective } from '../../../core/directives/dni-validator';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.html',
+  styleUrl: './register.scss',
   imports: [
     ReactiveFormsModule,
     CommonModule,
     PrivacyModalComponent,
-    DniValidatorDirective
+    DniValidatorDirective,
+    RouterLink
   ]
 })
 export class RegisterComponent {

@@ -8,12 +8,12 @@ use App\Http\Requests\RutinasUpdateRequest;
 use App\Models\Rutina;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RutinasController extends Controller
 {
     /**
-     * Muestra un listado de todas las rutinas junto al trainee asociado.
-     * Permite filtrar por nombre del usuario mediante ?search=.
+     * Muestra un listado de todas las rutinas de trainees asignados.
      */
     public function index(Request $request)
     {
@@ -35,18 +35,19 @@ class RutinasController extends Controller
             }
 
             $rutinas = Rutina::with('usuario:id,name,email')
-                ->whereIn('user_id', $traineeIds) // Solo rutinas de trainees asignados
+                ->whereIn('user_id', $traineeIds)
                 ->when($search, function($q) use ($search) {
                     return $q->whereHas('usuario', function($u) use ($search) {
-                        $u->where('name','like',"%{$search}%");
+                        $u->where('name', 'like', "%{$search}%");
                     });
                 })
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
 
             return response()->json($rutinas);
 
         } catch (\Exception $e) {
-            \Log::error('Error en RutinasController@index: ' . $e->getMessage());
+            Log::error('Error en RutinasController@index: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Error al cargar las rutinas',
                 'error' => $e->getMessage()
@@ -56,106 +57,235 @@ class RutinasController extends Controller
 
     /**
      * Almacena una rutina recien creada para un trainee dado.
-     * El trainee se busca por su email.
      */
     public function store(RutinasStoreRequest $request)
     {
-        $data = $request->validated();
-        $entrenador = auth()->user();
+        try {
+            $data = $request->validated();
+            $entrenador = auth()->user();
 
-        // Buscar el trainee por email
-        $trainee = User::where('email', $data['email'])->first();
+            Log::info('Creando rutina para entrenador', [
+                'entrenador_id' => $entrenador->id,
+                'email_buscado' => $data['email']
+            ]);
 
-        if (!$trainee) {
-            return response()->json(['message' => 'Trainee no encontrado'], 404);
+            // Buscar el trainee por email
+            $trainee = User::where('email', $data['email'])->first();
+
+            if (!$trainee) {
+                return response()->json([
+                    'message' => 'Trainee no encontrado con el email proporcionado'
+                ], 404);
+            }
+
+            // Verificar que el trainee tenga rol 'trainee'
+            if (!$trainee->hasRole('trainee')) {
+                return response()->json([
+                    'message' => 'El usuario debe ser un trainee'
+                ], 422);
+            }
+
+            // Verificar que el trainee esté asignado a este entrenador
+            $estaAsignado = $entrenador->traineesAsignados()
+                ->where('users.id', $trainee->id)
+                ->exists();
+
+            if (!$estaAsignado) {
+                return response()->json([
+                    'message' => 'Este trainee no está asignado a ti'
+                ], 403);
+            }
+
+            // Crear la rutina
+            $rutina = Rutina::create([
+                'user_id' => $trainee->id,
+                'nombre' => $data['nombre'],
+                'descripcion' => $data['descripcion'] ?? null,
+            ]);
+
+            Log::info('Rutina creada exitosamente', [
+                'rutina_id' => $rutina->id,
+                'trainee_id' => $trainee->id,
+                'entrenador_id' => $entrenador->id
+            ]);
+
+            return response()->json([
+                'message' => 'Rutina creada exitosamente',
+                'rutina' => $rutina->load('usuario:id,name,email')
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@store: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'data' => $request->all(),
+                'user' => auth()->user()->id
+            ]);
+
+            return response()->json([
+                'message' => 'Error interno al crear la rutina',
+                'error' => env('APP_DEBUG') ? $e->getMessage() : 'Error interno del servidor'
+            ], 500);
         }
-
-        // Verificar que el trainee tenga rol 'trainee'
-        if (!$trainee->hasRole('trainee')) {
-            return response()->json(['message' => 'El usuario debe ser un trainee'], 422);
-        }
-
-        // Verificar que el trainee esté asignado a este entrenador
-        $estaAsignado = $entrenador->traineesAsignados()
-            ->where('id', $trainee->id)
-            ->exists();
-
-        if (!$estaAsignado) {
-            return response()->json(['message' => 'Este trainee no está asignado a ti'], 403);
-        }
-
-        $rutina = Rutina::create([
-            'user_id' => $trainee->id,
-            'nombre' => $data['nombre'],
-            'descripcion' => $data['descripcion'] ?? null,
-        ]);
-
-        return response()->json(['message'=>'Rutina creada','rutina'=>$rutina], 201);
     }
 
     /**
-     * Muestra la rutina especificada junto a su usuario y ejercicios asociados.
+     * Muestra la rutina especificada.
      */
     public function show(Rutina $rutina)
     {
-        $rutina->load(['usuario','ejercicios']);
-        return response()->json($rutina);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
+
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para ver esta rutina'
+                ], 403);
+            }
+
+            $rutina->load(['usuario:id,name,email', 'ejercicios']);
+            return response()->json($rutina);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@show: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al cargar la rutina'
+            ], 500);
+        }
     }
 
     /**
-     * Actualiza/Modifica la rutina especificada y reasigna el trainee si se cambia el email.
+     * Actualiza la rutina especificada.
      */
     public function update(RutinasUpdateRequest $request, Rutina $rutina)
     {
-        $data = $request->validated();
-        $user = User::where('email', $data['email'])->first();
-        if (!$user) return response()->json(['message'=>'Usuario no encontrado'], 404);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
 
-        $rutina->update([
-            'user_id' => $user->id,
-            'nombre' => $data['nombre'] ?? $rutina->nombre,
-            'descripcion' => $data['descripcion'] ?? $rutina->descripcion,
-        ]);
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para editar esta rutina'
+                ], 403);
+            }
 
-        return response()->json(['message'=>'Rutina actualizada','rutina'=>$rutina]);
+            $data = $request->validated();
+
+            // Si se cambia el email, verificar el nuevo trainee
+            if (isset($data['email']) && $data['email'] !== $rutina->usuario->email) {
+                $user = User::where('email', $data['email'])->first();
+
+                if (!$user) {
+                    return response()->json([
+                        'message' => 'Usuario no encontrado'
+                    ], 404);
+                }
+
+                // Verificar que el nuevo trainee esté asignado al entrenador
+                if (!in_array($user->id, $traineeIds)) {
+                    return response()->json([
+                        'message' => 'El nuevo trainee no está asignado a ti'
+                    ], 403);
+                }
+
+                $data['user_id'] = $user->id;
+            }
+
+            $rutina->update($data);
+
+            return response()->json([
+                'message' => 'Rutina actualizada',
+                'rutina' => $rutina->load('usuario:id,name,email')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@update: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al actualizar la rutina'
+            ], 500);
+        }
     }
 
     /**
-     * Elimina la rutina especificada de la BBDD.
+     * Elimina la rutina especificada.
      */
     public function destroy(Rutina $rutina)
     {
-        $rutina->delete();
-        return response()->json(['message'=>'Rutina eliminada']);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
+
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para eliminar esta rutina'
+                ], 403);
+            }
+
+            $rutina->delete();
+
+            return response()->json([
+                'message' => 'Rutina eliminada'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@destroy: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al eliminar la rutina'
+            ], 500);
+        }
     }
 
     /**
-     * Asigna varios ejercicios a una rutina específica con
-     * parámetros adicionales (series, repeticiones, descanso).
+     * Asigna ejercicios a una rutina.
      */
     public function asignarEjercicios(Request $request, Rutina $rutina)
     {
-        $request->validate([
-            'ejercicios' => 'required|array|min:1',
-            'ejercicios.*.id' => 'required|exists:ejercicios,id',
-            'ejercicios.*.series' => 'required|integer|min:1',
-            'ejercicios.*.repeticiones' => 'required|integer|min:1',
-            'ejercicios.*.descanso' => 'required|integer|min:0',
-        ]);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
 
-        // Preparamos los datos para attach/sync
-        $datos = [];
-        foreach ($request->ejercicios as $ej) {
-            $datos[$ej['id']] = [
-                'series' => $ej['series'],
-                'repeticiones' => $ej['repeticiones'],
-                'descanso' => $ej['descanso'],
-            ];
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para modificar esta rutina'
+                ], 403);
+            }
+
+            $request->validate([
+                'ejercicios' => 'required|array|min:1',
+                'ejercicios.*.id' => 'required|exists:ejercicios,id',
+                'ejercicios.*.series' => 'required|integer|min:1',
+                'ejercicios.*.repeticiones' => 'required|integer|min:1',
+                'ejercicios.*.peso' => 'required|numeric|min:0',
+                'ejercicios.*.descanso' => 'required|integer|min:0',
+            ]);
+
+            $datos = [];
+            foreach ($request->ejercicios as $ej) {
+                $datos[$ej['id']] = [
+                    'series' => $ej['series'],
+                    'repeticiones' => $ej['repeticiones'],
+                    'descanso' => $ej['descanso'],
+                    'peso' => $ej['peso'] ?? 0,
+                ];
+            }
+
+
+            $rutina->ejercicios()->attach($datos);
+
+            return response()->json([
+                'message' => 'Ejercicios asignados'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@asignarEjercicios: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al asignar ejercicios'
+            ], 500);
         }
-
-        // Asigna ejercicios sin eliminar los existentes (usa sync() para reemplazar)
-        $rutina->ejercicios()->attach($datos);
-        return response()->json(['message'=>'Ejercicios asignados']);
     }
 
     /**
@@ -163,60 +293,127 @@ class RutinasController extends Controller
      */
     public function verEjercicios(Rutina $rutina)
     {
-        return response()->json($rutina->load('ejercicios')->ejercicios);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
+
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para ver esta rutina'
+                ], 403);
+            }
+
+            return response()->json(
+                $rutina->load('ejercicios')->ejercicios
+            );
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@verEjercicios: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al cargar ejercicios'
+            ], 500);
+        }
     }
 
     /**
-     * Reemplaza completamente los ejercicios de una rutina
-     * por los enviados en la solicitud.
+     * Reemplaza completamente los ejercicios de una rutina.
      */
     public function sincronizarEjercicios(Request $request, Rutina $rutina)
     {
-        $request->validate([
-            'ejercicios' => 'required|array|min:1',
-            'ejercicios.*.id' => 'required|exists:ejercicios,id',
-            'ejercicios.*.series' => 'required|integer|min:1',
-            'ejercicios.*.repeticiones' => 'required|integer|min:1',
-            'ejercicios.*.descanso' => 'required|integer|min:0',
-        ]);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
 
-        $datos = [];
-        foreach ($request->ejercicios as $ej) {
-            $datos[$ej['id']] = [
-                'series' => $ej['series'],
-                'repeticiones' => $ej['repeticiones'],
-                'descanso' => $ej['descanso'],
-            ];
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para modificar esta rutina'
+                ], 403);
+            }
+
+            $request->validate([
+                'ejercicios' => 'required|array|min:1',
+                'ejercicios.*.id' => 'required|exists:ejercicios,id',
+                'ejercicios.*.series' => 'required|integer|min:1',
+                'ejercicios.*.repeticiones' => 'required|integer|min:1',
+                'ejercicios.*.peso' => 'required|numeric|min:0',
+                'ejercicios.*.descanso' => 'required|integer|min:0',
+            ]);
+
+            $datos = [];
+            foreach ($request->ejercicios as $ej) {
+                $datos[$ej['id']] = [
+                    'series' => $ej['series'],
+                    'repeticiones' => $ej['repeticiones'],
+                    'descanso' => $ej['descanso'],
+                    'peso' => $ej['peso'] ?? 0,
+                ];
+            }
+
+            $rutina->ejercicios()->sync($datos);
+
+            return response()->json([
+                'message' => 'Ejercicios sincronizados'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@sincronizarEjercicios: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al sincronizar ejercicios'
+            ], 500);
         }
-
-        // sync() elimina los anteriores y asigna los nuevos
-        $rutina->ejercicios()->sync($datos);
-        return response()->json(['message'=>'Ejercicios sincronizados']);
     }
 
     /**
-     * Quita un solo ejercicio de la rutina sin eliminarlo de la base de datos.
+     * Elimina un ejercicio de la rutina.
      */
     public function eliminarEjercicio(Rutina $rutina, $ejercicioId)
     {
-        $rutina->ejercicios()->detach($ejercicioId);
-        return response()->json(['message'=>'Ejercicio eliminado de la rutina']);
+        try {
+            // Verificar que la rutina pertenezca a un trainee asignado
+            $entrenador = auth()->user();
+            $traineeIds = $entrenador->traineesAsignados()->pluck('users.id')->toArray();
+
+            if (!in_array($rutina->user_id, $traineeIds)) {
+                return response()->json([
+                    'message' => 'No tienes permiso para modificar esta rutina'
+                ], 403);
+            }
+
+            $rutina->ejercicios()->detach($ejercicioId);
+
+            return response()->json([
+                'message' => 'Ejercicio eliminado de la rutina'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@eliminarEjercicio: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al eliminar el ejercicio'
+            ], 500);
+        }
     }
 
-
     /**
-     * Devuelve todos los trainees asignados al entrenador autenticado.
+     * Devuelve todos los trainees asignados al entrenador.
      */
     public function trainees()
     {
-        $entrenador = auth()->user();
+        try {
+            $entrenador = auth()->user();
 
-        // ESPECIFICA LA TABLA en el select
-        $trainees = $entrenador->traineesAsignados()
-            ->select('users.id', 'users.name', 'users.email', 'users.photo_url')
-            ->get();
+            $trainees = $entrenador->traineesAsignados()
+                ->select('users.id', 'users.name', 'users.email', 'users.photo_url')
+                ->get();
 
-        return response()->json($trainees);
+            return response()->json($trainees);
+
+        } catch (\Exception $e) {
+            Log::error('Error en RutinasController@trainees: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al cargar trainees'
+            ], 500);
+        }
     }
 }
-

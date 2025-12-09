@@ -90,20 +90,20 @@ class AdminRutinasController extends Controller
             'ejercicios.*.id' => 'required|exists:ejercicios,id',
             'ejercicios.*.series' => 'required|integer|min:1',
             'ejercicios.*.repeticiones' => 'required|integer|min:1',
+            'ejercicios.*.peso' => 'required|numeric|min:0',
             'ejercicios.*.descanso' => 'required|integer|min:0',
         ]);
 
-        // Preparamos los datos para attach/sync
         $datos = [];
         foreach ($request->ejercicios as $ej) {
             $datos[$ej['id']] = [
                 'series' => $ej['series'],
                 'repeticiones' => $ej['repeticiones'],
                 'descanso' => $ej['descanso'],
+                'peso' => $ej['peso'] ?? 0,
             ];
         }
 
-        // Asigna ejercicios sin eliminar los existentes (usa sync() para reemplazar)
         $rutina->ejercicios()->attach($datos);
         return response()->json(['message'=>'Ejercicios asignados']);
     }
@@ -127,6 +127,7 @@ class AdminRutinasController extends Controller
             'ejercicios.*.id' => 'required|exists:ejercicios,id',
             'ejercicios.*.series' => 'required|integer|min:1',
             'ejercicios.*.repeticiones' => 'required|integer|min:1',
+            'ejercicios.*.peso' => 'required|numeric|min:0',
             'ejercicios.*.descanso' => 'required|integer|min:0',
         ]);
 
@@ -136,10 +137,10 @@ class AdminRutinasController extends Controller
                 'series' => $ej['series'],
                 'repeticiones' => $ej['repeticiones'],
                 'descanso' => $ej['descanso'],
+                'peso' => $ej['peso'] ?? 0,
             ];
         }
 
-        // sync() elimina los anteriores y asigna los nuevos
         $rutina->ejercicios()->sync($datos);
         return response()->json(['message'=>'Ejercicios sincronizados']);
     }

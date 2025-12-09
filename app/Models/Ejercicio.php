@@ -10,12 +10,12 @@ class Ejercicio extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['nombre','descripcion','grupo_muscular','foto'];
+    protected $fillable = ['nombre', 'descripcion', 'grupo_muscular', 'foto'];
 
     public function rutinas()
     {
         return $this->belongsToMany(Rutina::class, 'ejercicios_en_rutinas')
-            ->withPivot('series','repeticiones','descanso')
+            ->withPivot('series', 'repeticiones', 'descanso', 'peso')
             ->withTimestamps();
     }
 }

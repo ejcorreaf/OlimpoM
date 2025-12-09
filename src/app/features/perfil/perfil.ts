@@ -25,7 +25,6 @@ export class PerfilComponent implements OnInit {
   uploadingPhoto = false;
   showSuccessMessage = false;
   
-  // Señal para forzar actualización de la foto
   photoCacheBuster = signal(Date.now());
 
   successModal = viewChild<SuccessModalComponent>('successModal');
@@ -44,14 +43,12 @@ export class PerfilComponent implements OnInit {
     return this.auth.needsEmailVerification();
   }
 
-  // Método para obtener la URL de la foto con cache buster
   getUserPhotoUrl(): string {
     if (!this.user) return '';
     
     let photoUrl = this.user.photo_url || 
                    `https://ui-avatars.com/api/?name=${encodeURIComponent(this.user.name)}&background=random&size=120`;
     
-    // Añadir timestamp para romper el cache
     if (this.user.photo_url) {
       const separator = photoUrl.includes('?') ? '&' : '?';
       photoUrl += `${separator}_=${this.photoCacheBuster()}`;
@@ -66,7 +63,6 @@ export class PerfilComponent implements OnInit {
 
   onPhotoError() {
     console.warn('Error cargando la foto');
-    // Si hay error, intentar sin cache buster
     if (this.user?.photo_url) {
       const img = document.getElementById('current-profile-photo') as HTMLImageElement;
       if (img) {
@@ -86,7 +82,6 @@ export class PerfilComponent implements OnInit {
     
     const file = input.files[0];
     
-    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
       alert('Por favor, selecciona un archivo de imagen (JPG, PNG, etc.)');
       input.value = '';
@@ -95,7 +90,6 @@ export class PerfilComponent implements OnInit {
       return;
     }
     
-    // Validar tamaño (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('La imagen es demasiado grande. Máximo 5MB');
       input.value = '';
@@ -106,7 +100,6 @@ export class PerfilComponent implements OnInit {
     
     this.selectedFile = file;
     
-    // Crear preview
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       if (e.target?.result) {
@@ -138,29 +131,22 @@ export class PerfilComponent implements OnInit {
         console.log('Respuesta del servidor:', response);
         
         if (response.user) {
-          // 1. Actualizar el usuario en AuthService
           this.auth.updateUser(response.user);
           
-          // 2. Actualizar localmente
           this.user = response.user;
           
-          // 3. FORZAR ACTUALIZACIÓN DE LA FOTO EN EL DOM
           this.forcePhotoUpdate(response.user.photo_url);
           
-          // 4. Actualizar el cache buster
           this.photoCacheBuster.set(Date.now());
         }
         
-        // 5. Limpiar selección
         this.selectedFile = null;
         this.photoPreview = null;
         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
         
-        // 6. Mostrar mensaje de éxito
         this.showSuccessMessage = true;
         
-        // 7. Ocultar mensaje después de 5 segundos
         setTimeout(() => {
           this.showSuccessMessage = false;
         }, 5000);
@@ -183,14 +169,12 @@ export class PerfilComponent implements OnInit {
     });
   }
 
-  // MÉTODO CLAVE: Forzar actualización de la foto en el DOM
   private forcePhotoUpdate(photoUrl: string | null) {
     if (!photoUrl) return;
     
     setTimeout(() => {
       const imgElement = document.getElementById('current-profile-photo') as HTMLImageElement;
       if (imgElement) {
-        // TRUCO NUCLEAR: Crear una nueva imagen y reemplazar
         const newImg = new Image();
         const timestamp = Date.now();
         newImg.src = `${photoUrl}?nuke=${timestamp}`;
@@ -202,10 +186,8 @@ export class PerfilComponent implements OnInit {
         
         newImg.onload = () => {
           console.log('Nueva imagen cargada, reemplazando...');
-          // Reemplazar el elemento viejo con el nuevo
           imgElement.parentNode?.replaceChild(newImg, imgElement);
           
-          // Añadir event listeners al nuevo elemento
           newImg.addEventListener('load', () => this.onPhotoLoaded());
           newImg.addEventListener('error', () => this.onPhotoError());
         };
@@ -249,7 +231,6 @@ export class PerfilComponent implements OnInit {
         this.resendSuccess = true;
         this.resendingEmail = false;
         
-        // Ocultar mensaje después de 5 segundos
         setTimeout(() => {
           this.resendSuccess = false;
         }, 5000);

@@ -23,7 +23,7 @@ export class TraineeRutinasListComponent implements OnInit {
     this.loading = true;
     this.traineeService.getRutinas().subscribe({
       next: (rutinas) => {
-        console.log('Rutinas recibidas:', rutinas); // Para debug
+        console.log('Rutinas recibidas:', rutinas);
         this.rutinas = rutinas;
         this.loading = false;
       },

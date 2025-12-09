@@ -63,7 +63,6 @@ export class AdminEjercicioFormComponent implements OnInit {
     if (file) {
       this.selectedFile = file;
       
-      // Preview
       const reader = new FileReader();
       reader.onload = () => {
         this.previewUrl = reader.result as string;
@@ -78,16 +77,13 @@ export class AdminEjercicioFormComponent implements OnInit {
     
     const formData = new FormData();
     
-    // Añadir datos al FormData
     formData.append('nombre', this.ejercicioForm.get('nombre')?.value);
     formData.append('grupo_muscular', this.ejercicioForm.get('grupo_muscular')?.value);
     formData.append('descripcion', this.ejercicioForm.get('descripcion')?.value || '');
     
-    // SOLO añadir la foto si se seleccionó una nueva
     if (this.selectedFile) {
       formData.append('foto', this.selectedFile);
     } else if (this.isEdit) {
-      // Si estamos editando y no se cambió la foto, enviar 'currentFoto' para indicar que debe mantenerse
       formData.append('currentFoto', this.currentFoto || '');
     }
 
@@ -104,7 +100,6 @@ export class AdminEjercicioFormComponent implements OnInit {
         console.error('Error saving ejercicio:', error);
         this.loading = false;
         
-        // Manejo de errores más detallado
         if (error.status === 422) {
           console.error('Errores de validación:', error.error.errors);
         }

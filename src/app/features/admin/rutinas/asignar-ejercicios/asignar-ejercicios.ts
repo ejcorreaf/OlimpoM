@@ -78,7 +78,8 @@ export class AdminAsignarEjerciciosComponent implements OnInit {
         id: [ejercicio.id, Validators.required],
         series: [ejercicio.pivot?.series || 3, [Validators.required, Validators.min(1)]],
         repeticiones: [ejercicio.pivot?.repeticiones || 10, [Validators.required, Validators.min(1)]],
-        descanso: [ejercicio.pivot?.descanso || 60, [Validators.required, Validators.min(0)]]
+        descanso: [ejercicio.pivot?.descanso || 60, [Validators.required, Validators.min(0)]],
+        peso: [ejercicio.pivot?.peso || 0, [Validators.min(0)]]
       }));
     });
   }
@@ -88,7 +89,8 @@ export class AdminAsignarEjerciciosComponent implements OnInit {
       id: ['', Validators.required],
       series: [3, [Validators.required, Validators.min(1)]],
       repeticiones: [10, [Validators.required, Validators.min(1)]],
-      descanso: [60, [Validators.required, Validators.min(0)]]
+      descanso: [60, [Validators.required, Validators.min(0)]],
+      peso: [0, [Validators.min(0)]]
     }));
   }
 

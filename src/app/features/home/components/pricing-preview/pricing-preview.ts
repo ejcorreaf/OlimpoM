@@ -54,7 +54,7 @@ export class PricingPreviewComponent {
   ];
 
   selectPlan(plan: any) {
-  // No permitir seleccionar el plan "gym" (autodidacta)
+  // No permitir seleccionar el plan autodidacta
   if (plan.id === 'gym') {
     alert('Este plan estará disponible próximamente.');
     return;

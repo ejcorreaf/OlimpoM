@@ -63,7 +63,7 @@ export class NewsComponent implements OnInit {
   getReadingTime(content: string): number {
     const plainText = content.replace(/<[^>]*>/g, '');
     const wordCount = plainText.split(/\s+/).length;
-    return Math.ceil(wordCount / 200); // 200 palabras por minuto
+    return Math.ceil(wordCount / 200);
   }
 
   toggleReadMore() {

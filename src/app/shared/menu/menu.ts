@@ -36,11 +36,9 @@ constructor() {
 logout() {
   this.auth.logout().subscribe({
     next: () => {
-      // Éxito - limpiar y navegar
       this.cleanAndNavigate();
     },
     error: (error) => {
-      // Error (token inválido) - limpiar igualmente y navegar
       console.log('Logout falló, limpiando localmente');
       this.cleanAndNavigate();
     }
@@ -48,7 +46,6 @@ logout() {
 }
 
 private cleanAndNavigate() {
-  // Limpiar todo localmente
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   this.router.navigate(['/login']);

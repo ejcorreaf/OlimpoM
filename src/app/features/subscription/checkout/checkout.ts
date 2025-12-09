@@ -31,21 +31,18 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   showTermsModal = false;
   showPrivacyModal = false;
   
-  // Stripe
   stripe: Stripe | null = null;
   elements: StripeElements | null = null;
   card: StripeCardElement | null = null;
   cardError: string = '';
   stripeInitialized = false;
   
-  // Datos del usuario para la facturación
   datosFacturacion = {
     nombre: '',
     email: '',
     dni: ''
   };
 
-  // Guardar tarjeta para futuros pagos
   savePaymentMethod = false;
 
   async ngOnInit() {
@@ -57,7 +54,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    // Esperar a que el DOM esté listo
     setTimeout(() => {
       if (this.metodoPago === 'tarjeta' && !this.stripeInitialized) {
         this.initializeStripe();
@@ -69,7 +65,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     if (this.stripeInitialized) return;
     
     try {
-      // Obtener clave pública desde backend
       const keyResponse = await firstValueFrom(
         this.subscriptionService.getStripePublicKey()
       );
@@ -94,14 +89,12 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   async createCardElement() {
     if (!this.stripe || !this.elements) return;
     
-    // Verificar que el contenedor existe
     const cardElementContainer = document.getElementById('card-element-container');
     if (!cardElementContainer) {
       console.error('No se encontró el contenedor para Stripe Elements');
       return;
     }
     
-    // Crear elemento de tarjeta
     this.card = this.elements.create('card', {
       style: {
         base: {
@@ -129,10 +122,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       }
     });
     
-    // Montar el elemento
     this.card.mount('#card-element');
     
-    // Escuchar cambios
     this.card.on('change', (event) => {
       if (event.error) {
         this.cardError = event.error.message || '';
@@ -173,10 +164,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   processPayment() {
     if (!this.plan) return;
     
-    // Validar términos y condiciones
     if (!this.aceptoTerminos) {
       this.mostrarErrorTerminos = true;
-      // Scroll al checkbox
       const termsElement = document.getElementById('terms');
       if (termsElement) {
         termsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -206,14 +195,12 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       next: (response) => {
         console.log('Respuesta PayPal:', response);
         if (response.approval_url) {
-          // Guardar order_id en localStorage para después
           localStorage.setItem('last_paypal_order', JSON.stringify({
             order_id: response.order_id,
             plan_id: this.plan?.id,
             plan_name: this.plan?.nombre
           }));
           
-          // Redirigir a PayPal
           window.location.href = response.approval_url;
         } else {
           this.procesandoPago = false;
@@ -246,7 +233,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     try {
       console.log('1. Validando datos de facturación...');
       
-      // Validar que el nombre esté completo
       if (!this.datosFacturacion.nombre.trim()) {
         this.cardError = 'Por favor, introduce tu nombre completo';
         this.procesandoPago = false;
@@ -259,7 +245,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
         datos_facturacion: this.datosFacturacion
       });
 
-      // 1. Crear Payment Intent en el backend
       const subscriptionData = {
         plan_id: this.plan.id,
         datos_facturacion: this.datosFacturacion,
@@ -278,7 +263,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
 
       console.log('4. Client secret obtenido, confirmando con Stripe...');
       
-      // 2. Confirmar el pago con Stripe
       const { error, paymentIntent } = await this.stripe.confirmCardPayment(
         response.payment_intent.client_secret,
         {
@@ -289,7 +273,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
               email: this.datosFacturacion.email,
             }
           },
-          // Agregar esto para mejor manejo de errores
           return_url: window.location.origin + '/subscription/success'
         }
       );
@@ -310,7 +293,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
           paymentMethodId: paymentIntent.payment_method
         });
 
-        // 3. Confirmar en nuestro backend
         const confirmResponse = await firstValueFrom(
           this.subscriptionService.confirmStripePayment({
             payment_intent_id: paymentIntent.id,
@@ -347,7 +329,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
         response: error.response
       });
       
-      // Mostrar error específico
       let errorMessage = 'Error inesperado al procesar el pago';
       
       if (error.message.includes('Network Error')) {
@@ -366,7 +347,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       this.procesandoPago = false;
       alert(`Error: ${errorMessage}`);
       
-      // Si es un error de tarjeta, mostrar opciones
       if (error.message.toLowerCase().includes('card') || error.message.toLowerCase().includes('declined')) {
         alert('💡 Usa una tarjeta de prueba válida:\n\n' +
               '• 4242 4242 4242 4242 - Pago exitoso\n' +
@@ -379,7 +359,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   }
 
   handleSuccessfulPayment(response: { suscripcion: any }) {
-    // Actualizar usuario
     const user = this.auth.getCurrentUser();
     if (user && response.suscripcion) {
       this.auth.updateUser({
@@ -393,12 +372,10 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       });
     }
 
-    // Mostrar éxito INMEDIATO en el checkout (no redirigir)
     this.showSuccessModal();
   }
 
   showSuccessModal() {
-    // Crear modal de éxito
     const modalHtml = `
       <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered">
@@ -433,13 +410,11 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       </div>
     `;
 
-    // Agregar modal al DOM
     const modalContainer = document.createElement('div');
     modalContainer.id = 'successModal';
     modalContainer.innerHTML = modalHtml;
     document.body.appendChild(modalContainer);
 
-    // Agregar event listeners
     setTimeout(() => {
       const goToRoutinesBtn = document.getElementById('goToRoutinesBtn');
       const goToProfileBtn = document.getElementById('goToProfileBtn');
@@ -458,7 +433,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
         });
       }
       
-      // Cerrar modal al hacer clic fuera
       modalContainer.addEventListener('click', (e) => {
         if (e.target === modalContainer) {
           this.removeModal();
@@ -490,7 +464,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     openTermsModal(event: Event) {
     event.preventDefault();
     this.showTermsModal = true;
-    // Aquí puedes implementar un modal real o redirigir a una página
     this.showModal('términos y condiciones');
   }
 
@@ -501,7 +474,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   }
 
   showModal(tipo: string) {
-    // Implementa un modal o redirige a una página de términos
     alert(`Aquí se mostrarían los ${tipo}. En una implementación real, esto sería un modal.`);
   }
 

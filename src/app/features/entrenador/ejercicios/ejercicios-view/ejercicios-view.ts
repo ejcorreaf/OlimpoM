@@ -14,13 +14,15 @@ export class EjerciciosViewComponent implements OnInit {
   private entrenadorService = inject(EntrenadorService);
   
   ejercicios: Ejercicio[] = [];
-  gruposMusculares: string[] = [];
+  gruposMusculares: string[] = [
+    'pecho', 'espalda', 'hombros', 'biceps', 
+    'triceps', 'piernas', 'abdominales', 'gluteos'
+  ];
   grupoSeleccionado: string = '';
   searchTerm: string = '';
   loading = true;
 
   ngOnInit() {
-    this.loadGruposMusculares();
     this.loadEjercicios();
   }
 
@@ -29,7 +31,13 @@ export class EjerciciosViewComponent implements OnInit {
       next: (grupos) => {
         this.gruposMusculares = grupos;
       },
-      error: (error) => console.error('Error cargando grupos musculares:', error)
+      error: (error) => {
+        console.error('Error cargando grupos musculares:', error);
+        this.gruposMusculares = [
+          'pecho', 'espalda', 'hombros', 'biceps', 
+          'triceps', 'piernas', 'abdominales', 'gluteos'
+        ];
+      }
     });
   }
 

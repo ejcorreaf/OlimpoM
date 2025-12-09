@@ -24,7 +24,6 @@ export class SubscriptionStatusComponent implements OnInit {
   tieneSuscripcionActiva = false;
   isTrainee = false;
   
-  // Modal states
   showConfirmModal = false;
   confirmMessage = '¿Estás seguro de que quieres cancelar tu suscripción? Perderás acceso a las rutinas.';
   successMessage = 'Suscripción cancelada correctamente';
@@ -95,7 +94,6 @@ export class SubscriptionStatusComponent implements OnInit {
     this.showConfirmModal = false;
     this.subscriptionService.cancelSubscription().subscribe({
       next: () => {
-        // Actualizar datos localmente
         this.actualizarSuscripcionLocalmente();
         this.successModal.show();
       },
@@ -108,7 +106,6 @@ export class SubscriptionStatusComponent implements OnInit {
 
   actualizarSuscripcionLocalmente() {
     if (this.suscripcion) {
-      // Actualizar estado a cancelada
       this.suscripcion.estado = 'cancelled';
       this.tieneSuscripcionActiva = false;
     }

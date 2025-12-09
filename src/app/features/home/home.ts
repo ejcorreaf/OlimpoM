@@ -1,4 +1,3 @@
-// src/app/features/home/home.ts
 import { Component } from '@angular/core';
 import { HeroComponent } from './components/hero/hero';
 import { FeaturesTabsComponent } from './components/features-tabs/features-tabs';

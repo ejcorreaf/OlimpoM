@@ -38,20 +38,19 @@ export interface Rutina {
 }
 
 export interface Trainee {
-  id: number; // AÑADIDO
+  id: number;
   name: string;
   email: string;
-  photo_url?: string; // AÑADIDO
+  photo_url?: string;
 }
 
 export interface Trainer {
-  id: number; // AÑADIDO
+  id: number;
   name: string;
   email: string;
-  photo_url?: string; // AÑADIDO
+  photo_url?: string;
 }
 
-// NUEVAS INTERFACES PARA ASIGNACIONES
 export interface Entrenador {
   id: number;
   name: string;
@@ -64,7 +63,7 @@ export interface AsignacionRequest {
   trainee_id: number;
 }
 
-// Interfaz para trainees asignados (compatible con entrenador service)
+// Interfaz para trainees asignados
 export interface TraineeAsignado {
   id: number;
   name: string;
@@ -100,7 +99,7 @@ export class AdminService {
     return this.http.delete(`${this.apiUrl}/usuarios/${id}`);
   }
 
-  // NUEVOS MÉTODOS: Verificación manual de email
+  // Verificación manual de email
   verifyEmail(id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/usuarios/${id}/verify-email`, {});
   }
@@ -182,7 +181,7 @@ export class AdminService {
   }
 
   // ============================================
-  // NUEVOS MÉTODOS PARA GESTIÓN DE ASIGNACIONES
+  // GESTIÓN DE ASIGNACIONES
   // ============================================
 
   getAsignaciones(): Observable<Entrenador[]> {

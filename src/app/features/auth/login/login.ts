@@ -12,10 +12,8 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class LoginComponent {
 
-  // Mensaje de error al iniciar sesión
   error = '';
 
-  // Formulario de inicio de sesión
   form: FormGroup;
 
   constructor(
@@ -30,7 +28,7 @@ export class LoginComponent {
   }
 
   /**
-   * Inicia sesión del usuario
+   * Inicio de sesión del usuario
    */
   onSubmit() {
     if (this.form.invalid) return;
@@ -39,7 +37,6 @@ export class LoginComponent {
 
     this.auth.login(email!, password!).subscribe({
       next: (res: any) => {
-        // Usar auth.getUserRole() en lugar de res.user.role para garantizar reactividad
         const role = this.auth.getUserRole();
         const homeRoute = this.auth.getHomeRouteByRole(role);
         this.router.navigate([homeRoute]);

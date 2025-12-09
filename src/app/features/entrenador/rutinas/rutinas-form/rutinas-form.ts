@@ -46,7 +46,7 @@ export class RutinaFormComponent implements OnInit {
 
   loadTrainees() {
   this.loading = true;
-  this.entrenadorService.getTrainees().subscribe({ // SOLO getTrainees()
+  this.entrenadorService.getTrainees().subscribe({
     next: (trainees) => {
       this.trainees = trainees;
       this.loading = false;

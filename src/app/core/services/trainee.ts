@@ -23,6 +23,7 @@ export interface EjercicioRutina {
     rutina_id: number;
     ejercicio_id: number;
     series: number;
+    peso: number;
     repeticiones: number;
     descanso: number;
     created_at?: string;

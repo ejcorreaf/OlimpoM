@@ -31,6 +31,7 @@ export interface EjercicioRutina {
   series: number;
   repeticiones: number;
   descanso: number;
+  peso?: number;
 }
 
 export interface Mensaje {

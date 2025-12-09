@@ -23,7 +23,6 @@ export class PlansListComponent implements OnInit {
   currentPlanName: string = '';
   currentPlanPrice: number = 0;
   
-  // Variables para el modal de cambio de plan
   showChangePlanModal = false;
   private changePlanIdStorage: number | null = null;
   changePlanPrice: number = 0;
@@ -41,7 +40,6 @@ export class PlansListComponent implements OnInit {
         if (data.suscripcion?.plan_id) {
           this.currentPlanId = data.suscripcion.plan_id;
           
-          // Asignar nombre según el ID del plan
           if (this.currentPlanId === 1) {
             this.currentPlanName = 'Básico';
             this.currentPlanPrice = 9.99;
@@ -90,27 +88,23 @@ export class PlansListComponent implements OnInit {
       return;
     }
     
-    // No permitir cambiar al plan Autodidacta (ID 3)
     if (planId === 3) {
       alert('El plan Autodidacta está disponible próximamente');
       return;
     }
     
-    // Guardar los datos del plan a cambiar
     this.changePlanIdStorage = planId;
     this.changePlanPrice = price;
     this.changePlanName = name;
     this.showChangePlanModal = true;
   }
 
-  // Getter para acceder de forma segura al ID del plan
   get changePlanId(): number | null {
     return this.changePlanIdStorage;
   }
 
   closeChangePlanModal() {
     this.showChangePlanModal = false;
-    // Limpiar después de un breve delay para evitar problemas con el modal
     setTimeout(() => {
       this.changePlanIdStorage = null;
       this.changePlanPrice = 0;
@@ -119,7 +113,6 @@ export class PlansListComponent implements OnInit {
   }
 
   onModalClick(event: MouseEvent) {
-    // Cerrar modal al hacer clic fuera del contenido
     if ((event.target as HTMLElement).classList.contains('modal')) {
       this.closeChangePlanModal();
     }
@@ -133,17 +126,13 @@ export class PlansListComponent implements OnInit {
     
     console.log('Cambiando al plan:', planId);
     
-    // Cerrar el modal primero
     this.closeChangePlanModal();
     
-    // Esperar un momento para que el modal se cierre completamente
     setTimeout(() => {
-      // Redirigir a checkout con el nuevo plan
       this.router.navigate(['/subscription/checkout', planId]);
     }, 300);
   }
 
-  // Helper para debug
   debugInfo() {
     return {
       currentPlanId: this.currentPlanId,

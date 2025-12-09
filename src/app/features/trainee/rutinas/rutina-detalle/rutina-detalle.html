@@ -58,41 +58,80 @@
               <div class="row">
                 @for (ejercicio of grupo.value; track ejercicio.id) {
                   <div class="col-lg-6 mb-3">
-                    <div class="card h-100">
-                      <div class="row g-0">
-                        @if (ejercicio.foto) {
-                          <div class="col-md-4">
-                            <img [src]="getFotoEjercicio(ejercicio)" 
-                                 [alt]="ejercicio.nombre"
-                                 class="img-fluid rounded-start h-100"
-                                 style="object-fit: cover; max-height: 150px;">
+                    <div class="card h-100 shadow-sm">
+                      <!-- FOTO PRIMERO - Parte superior de la tarjeta -->
+                      @if (ejercicio.foto) {
+                        <div class="card-img-top-container" style="height: 200px; overflow: hidden;">
+                          <img [src]="getFotoEjercicio(ejercicio)" 
+                               [alt]="ejercicio.nombre"
+                               class="card-img-top w-100 h-100"
+                               style="object-fit: cover; cursor: pointer;"
+                               (click)="verImagenAmpliada(ejercicio)">
+                        </div>
+                      } @else {
+                        <div class="card-img-top-container bg-light d-flex align-items-center justify-content-center" 
+                             style="height: 150px;">
+                          <div class="text-center text-muted">
+                            <i class="fas fa-dumbbell fa-3x mb-2"></i>
+                            <p class="mb-0">Sin imagen</p>
                           </div>
-                        }
-                        <div class="col-md-{{ ejercicio.foto ? '8' : '12' }}">
-                          <div class="card-body">
-                            <h5 class="card-title">{{ ejercicio.nombre }}</h5>
-                            <p class="card-text text-muted small">{{ ejercicio.descripcion }}</p>
-                            
-                            <div class="row text-center">
-                              <div class="col-4">
-                                <div class="border rounded p-2 bg-light">
-                                  <strong class="d-block">{{ ejercicio.pivot.series }}</strong>
-                                  <small class="text-muted">Series</small>
-                                </div>
-                              </div>
-                              <div class="col-4">
-                                <div class="border rounded p-2 bg-light">
-                                  <strong class="d-block">{{ ejercicio.pivot.repeticiones }}</strong>
-                                  <small class="text-muted">Reps</small>
-                                </div>
-                              </div>
-                              <div class="col-4">
-                                <div class="border rounded p-2 bg-light">
-                                  <strong class="d-block">{{ ejercicio.pivot.descanso }}"</strong>
-                                  <small class="text-muted">Descanso</small>
-                                </div>
-                              </div>
+                        </div>
+                      }
+                      
+                      <div class="card-body">
+                        <!-- Nombre y grupo muscular -->
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                          <h5 class="card-title mb-0">{{ ejercicio.nombre }}</h5>
+                          <span class="badge bg-primary">
+                            {{ ejercicio.grupo_muscular }}
+                          </span>
+                        </div>
+                        
+                        <!-- Descripción -->
+                        <p class="card-text text-muted small mb-3">
+                          {{ ejercicio.descripcion || 'Sin descripción disponible' }}
+                        </p>
+                        
+                        <!-- Detalles del ejercicio (4 columnas) -->
+                        <div class="row g-2 mb-3">
+                          <div class="col-3">
+                            <div class="border rounded p-2 bg-light text-center">
+                              <strong class="d-block">{{ ejercicio.pivot?.peso || 0 }}</strong>
+                              <small class="text-muted">Kg</small>
                             </div>
+                          </div>
+                          <div class="col-3">
+                            <div class="border rounded p-2 bg-light text-center">
+                              <strong class="d-block">{{ ejercicio.pivot?.series || 0 }}</strong>
+                              <small class="text-muted">Series</small>
+                            </div>
+                          </div>
+                          <div class="col-3">
+                            <div class="border rounded p-2 bg-light text-center">
+                              <strong class="d-block">{{ ejercicio.pivot?.repeticiones || 0 }}</strong>
+                              <small class="text-muted">Reps</small>
+                            </div>
+                          </div>
+                          <div class="col-3">
+                            <div class="border rounded p-2 bg-light text-center">
+                              <strong class="d-block">{{ ejercicio.pivot?.descanso || 0 }}"</strong>
+                              <small class="text-muted">Descanso</small>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Información adicional -->
+                        <div class="small text-muted">
+                          <div class="d-flex justify-content-between">
+                            <span>
+                              <i class="fas fa-dumbbell me-1"></i>
+                              {{ ejercicio.equipamiento || 'Sin equipamiento especificado' }}
+                            </span>
+                            @if (ejercicio.nivel) {
+                              <span class="badge bg-info">
+                                {{ ejercicio.nivel }}
+                              </span>
+                            }
                           </div>
                         </div>
                       </div>
@@ -164,3 +203,23 @@
     }
   </div>
 </div>
+
+<!-- Modal para ver imagen ampliada -->
+@if (imagenAmpliada) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.8);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ imagenAmpliada.nombre }}</h5>
+          <button type="button" class="btn-close" (click)="cerrarImagenAmpliada()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img [src]="getFotoEjercicio(imagenAmpliada)" 
+               [alt]="imagenAmpliada.nombre"
+               class="img-fluid"
+               style="max-height: 70vh;">
+        </div>
+      </div>
+    </div>
+  </div>
+}

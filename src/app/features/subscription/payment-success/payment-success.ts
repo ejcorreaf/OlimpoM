@@ -27,22 +27,17 @@ export class PaymentSuccessComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       console.log('Parámetros de URL:', params);
       
-      // Para PayPal: token viene en la URL
-      // Para Stripe: no viene nada, el pago ya se procesó
       const paypalToken = params['token'];
       const subscriptionId = params['subscription_id'];
       this.planName = params['plan'] || '';
       
       if (paypalToken || subscriptionId) {
-        // Es un pago de PayPal que necesita captura
         this.capturePayPalPayment(paypalToken || subscriptionId);
       } else {
-        // Es un pago de Stripe que ya se procesó
         this.isStripePayment = true;
         this.loading = false;
         this.paymentProcessed = true;
         
-        // Mostrar información de la última suscripción
         this.showLastSubscriptionInfo();
       }
     });
@@ -58,10 +53,8 @@ export class PaymentSuccessComponent implements OnInit {
           this.subscriptionId = response.suscripcion.id.toString();
           this.planName = response.suscripcion.plan?.nombre || this.planName;
           
-          // Actualizar estado del usuario
           this.updateUserAfterPayment(response.suscripcion);
           
-          // Limpiar localStorage
           localStorage.removeItem('last_paypal_order');
         } else {
           this.showError('Error al procesar el pago: ' + (response.message || 'Inténtalo de nuevo'));
@@ -76,7 +69,6 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   showLastSubscriptionInfo() {
-    // Intentar obtener información de la última suscripción
     this.subscriptionService.getUserSubscription().subscribe({
       next: (response) => {
         if (response.suscripcion) {

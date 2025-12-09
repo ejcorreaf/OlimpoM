@@ -22,7 +22,7 @@ export class AdminUsuarioFormComponent implements OnInit {
   usuarioId: number | null = null;
   showPassword = false;
   passwordChanged = false;
-  errorMessage: string = ''; // Para mostrar errores específicos
+  errorMessage: string = '';
 
   roles = [
     { value: 'trainee', label: 'Trainee' },
@@ -67,7 +67,6 @@ export class AdminUsuarioFormComponent implements OnInit {
       this.passwordChanged = value !== '';
     });
 
-    // Limpiar mensajes de error cuando el usuario escribe
     this.usuarioForm.valueChanges.subscribe(() => {
       this.errorMessage = '';
     });
@@ -81,7 +80,7 @@ export class AdminUsuarioFormComponent implements OnInit {
       this.usuarioForm.patchValue({
         name: usuario.name,
         email: usuario.email,
-        dni: usuario.dni || '', // Asegurar que sea string vacío si es null
+        dni: usuario.dni || '',
         role: usuario.role || 'trainee',
         email_verified: usuario.email_verified_at !== null || usuario.email_verified,
         password: ''
@@ -109,14 +108,11 @@ export class AdminUsuarioFormComponent implements OnInit {
     
     console.log('Datos antes de procesar:', formData);
     
-    // CORREGIDO: Mejor manejo de contraseñas
     if (this.isEdit) {
-      // En edición, solo enviar password si se cambió y no está vacío
       if (!this.passwordChanged || !formData.password) {
         delete formData.password;
       }
       
-      // Asegurar que DNI sea null si está vacío
       if (formData.dni === '') {
         formData.dni = null;
       }

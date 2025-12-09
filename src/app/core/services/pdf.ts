@@ -14,12 +14,11 @@ export class PdfService {
       throw new Error('Elemento no encontrado para generar PDF');
     }
 
-    // Ocultar elementos que no queremos en el PDF
     this.ocultarElementosNoDeseados();
 
     try {
       const canvas = await html2canvas(element, {
-        scale: 2, // Mejor calidad
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false
@@ -27,8 +26,8 @@ export class PdfService {
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
+      const imgWidth = 210;
+      const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
@@ -73,7 +72,7 @@ export class PdfService {
     });
   }
 
-  // Método alternativo para generar PDF más personalizado
+  
   async generarPdfRutinaPersonalizado(rutina: any): Promise<void> {
     const pdf = new jsPDF('p', 'mm', 'a4');
     let yPosition = 20;
@@ -148,7 +147,7 @@ export class PdfService {
         }
 
         // Detalles del ejercicio en la rutina
-        pdf.text(`Series: ${ejercicio.pivot?.series || 0} | Reps: ${ejercicio.pivot?.repeticiones || 0} | Descanso: ${ejercicio.pivot?.descanso || 0}s`, 30, yPosition);
+        pdf.text(`Series: ${ejercicio.pivot?.series || 0} | Reps: ${ejercicio.pivot?.repeticiones || 0} | Descanso: ${ejercicio.pivot?.descanso || 0}s | Peso: ${ejercicio.pivot?.peso || 0}kg`, 30, yPosition);
         yPosition += 8;
       }
       yPosition += 5;

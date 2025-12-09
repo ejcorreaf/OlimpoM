@@ -19,6 +19,7 @@ export class TraineeRutinaDetalleComponent implements OnInit {
   loading = false;
   generatingPdf = false;
   gruposMusculares: { [key: string]: any[] } = {};
+  imagenAmpliada: any = null; // Para el modal de imagen ampliada
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -31,7 +32,7 @@ export class TraineeRutinaDetalleComponent implements OnInit {
     this.loading = true;
     this.traineeService.getRutina(id).subscribe({
       next: (rutina) => {
-        console.log('Rutina detalle recibida:', rutina); // Para debug
+        console.log('Rutina detalle recibida:', rutina);
         this.rutina = rutina;
         this.gruposMusculares = this.agruparPorGrupoMuscular();
         this.loading = false;
@@ -48,17 +49,26 @@ export class TraineeRutinaDetalleComponent implements OnInit {
 
     this.generatingPdf = true;
     try {
-      // Opción 1: PDF personalizado (recomendado)
       await this.pdfService.generarPdfRutinaPersonalizado(this.rutina);
       
-      // Opción 2: PDF desde HTML (alternativa)
-      // await this.pdfService.generarPdfRutina(this.rutina, 'rutina-content');
     } catch (error) {
       console.error('Error generando PDF:', error);
       alert('Error al generar el PDF. Por favor, intenta nuevamente.');
     } finally {
       this.generatingPdf = false;
     }
+  }
+
+  // Función para ver imagen ampliada
+  verImagenAmpliada(ejercicio: any) {
+    if (ejercicio.foto) {
+      this.imagenAmpliada = ejercicio;
+    }
+  }
+
+  // Función para cerrar imagen ampliada
+  cerrarImagenAmpliada() {
+    this.imagenAmpliada = null;
   }
 
   agruparPorGrupoMuscular(): { [key: string]: any[] } {
@@ -89,8 +99,8 @@ export class TraineeRutinaDetalleComponent implements OnInit {
   calcularTiempoEstimado(): number {
     if (!this.rutina?.ejercicios) return 0;
     
-    const tiempoPorEjercicio = 3; // minutos por ejercicio (series + descanso)
-    const tiempoExtra = 10; // minutos extra para calentamiento/estiramientos
+    const tiempoPorEjercicio = 3;
+    const tiempoExtra = 10;
     
     return Math.round(this.rutina.ejercicios.length * tiempoPorEjercicio + tiempoExtra);
   }
@@ -103,6 +113,6 @@ export class TraineeRutinaDetalleComponent implements OnInit {
     if (ejercicio.foto) {
       return `http://localhost:8000/ejercicios/${ejercicio.foto}`;
     }
-    return 'assets/images/placeholder-exercise.jpg'; // Imagen por defecto
+    return 'assets/images/placeholder-exercise.png';
   }
 }

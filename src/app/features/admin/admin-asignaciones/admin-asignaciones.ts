@@ -19,12 +19,10 @@ export class AdminAsignacionesListComponent implements OnInit {
   entrenadores: Entrenador[] = [];
   loading = false;
   
-  // Confirm modal state
   showConfirmModal = false;
   confirmMessage = '¿Estás seguro de que quieres desasignar este trainee?';
   successMessage = 'Trainee desasignado correctamente';
   
-  // Data for the action
   selectedEntrenadorId = 0;
   selectedTraineeId = 0;
 
@@ -56,7 +54,6 @@ export class AdminAsignacionesListComponent implements OnInit {
     this.showConfirmModal = false;
     this.adminService.eliminarAsignacion(this.selectedEntrenadorId, this.selectedTraineeId).subscribe({
       next: () => {
-        // Actualizar datos localmente sin recargar toda la página
         this.actualizarDatosLocalmente();
         this.successModal.show();
       },
@@ -68,7 +65,6 @@ export class AdminAsignacionesListComponent implements OnInit {
   }
 
   actualizarDatosLocalmente() {
-    // Encontrar el entrenador y eliminar el trainee de su lista
     const entrenadorIndex = this.entrenadores.findIndex(e => e.id === this.selectedEntrenadorId);
     if (entrenadorIndex !== -1) {
       const entrenador = this.entrenadores[entrenadorIndex];
@@ -77,7 +73,6 @@ export class AdminAsignacionesListComponent implements OnInit {
         if (traineeIndex !== -1) {
           entrenador.trainees_asignados.splice(traineeIndex, 1);
           
-          // Si el entrenador ya no tiene trainees, ocultar su sección
           if (entrenador.trainees_asignados.length === 0) {
             this.entrenadores.splice(entrenadorIndex, 1);
           }

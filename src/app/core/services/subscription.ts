@@ -56,22 +56,22 @@ export class SubscriptionService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8000/api';
 
-  // Planes (ruta pública - todos pueden ver)
+  
   getPlans(): Observable<Plan[]> {
     return this.http.get<Plan[]>('http://localhost:8000/api/trainee/planes');
   }
   
-  // Suscripción del usuario (solo trainees autenticados)
+  
   getUserSubscription(): Observable<any> {
     return this.http.get<any>('http://localhost:8000/api/trainee/suscripcion');
   }
 
-  // Crear suscripción (iniciar pago)
+  // Crear suscripción 
   createSubscription(data: CreateSubscriptionDto): Observable<PaymentResponse> {
     return this.http.post<PaymentResponse>(`${this.apiUrl}/suscripciones`, data);
   }
 
-  // Confirmar pago (cuando vuelve de PayPal o procesa tarjeta)
+  // Confirmar pago
   confirmPayment(intencionPagoId: string): Observable<{ exito: boolean; message: string; suscripcion: Suscripcion }> {
     return this.http.post<{ exito: boolean; message: string; suscripcion: Suscripcion }>(
       `${this.apiUrl}/suscripciones/${intencionPagoId}/confirmar`,
@@ -90,14 +90,6 @@ export class SubscriptionService {
       `${this.apiUrl}/suscripciones/${intencionPagoId}/estado`
     );
   }
-
-  /* Simular pago (solo para desarrollo)
-  simulatePayment(planId: number): Observable<{ exito: boolean; message: string; suscripcion: Suscripcion }> {
-    return this.http.post<{ exito: boolean; message: string; suscripcion: Suscripcion }>(
-      `${this.apiUrl}/suscripciones/simular`,
-      { plan_id: planId }
-    );
-  }*/
 
   // Crear orden de PayPal
   createPayPalOrder(data: CreateSubscriptionDto): Observable<{
@@ -136,7 +128,6 @@ export class SubscriptionService {
       );
     }
 
-    // Stripe Payment Intent
     createStripePaymentIntent(data: {
       plan_id: number;
       datos_facturacion?: any;

@@ -33,7 +33,6 @@ export class AdminAsignarTraineeComponent implements OnInit {
   cargarDatos() {
     this.loading = true;
     
-    // Cargar entrenadores y trainees no asignados en paralelo
     this.adminService.getEntrenadores().subscribe({
       next: (entrenadores) => {
         this.entrenadores = entrenadores;
@@ -58,7 +57,6 @@ export class AdminAsignarTraineeComponent implements OnInit {
   }
 
   private checkLoadingComplete() {
-    // Simple check - in real app you'd want better state management
     this.loading = false;
   }
 

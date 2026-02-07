@@ -75,8 +75,7 @@ ng serve            # normalmente en http://localhost:4200
 + Autenticación segura + verificación de email
 
 ### Próximamente
-
-Modalidad autodidacta (usuarios que se autogestionan rutinas)
-Progreso detallado y estadísticas
-Notificaciones push / email
-Frontend Android
++ Modalidad autodidacta (usuarios que se autogestionan rutinas)
++ Progreso detallado y estadísticas
++ Notificaciones push / email
++ Frontend Android

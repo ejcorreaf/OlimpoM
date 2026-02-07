@@ -1,4 +1,4 @@
-# OlimpoM 💪🏋️‍♂️
+# OlimpoM ⛰️
 
 **Aplicación web para la gestión de entrenamientos en gimnasio** 
 

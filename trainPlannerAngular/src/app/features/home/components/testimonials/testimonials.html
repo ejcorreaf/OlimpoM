@@ -1,0 +1,40 @@
+    <section class="testimonials-section py-6">
+      <div class="container">
+        <div class="row justify-content-center mb-5">
+          <div class="col-lg-8 text-center">
+            <h2 class="section-title">Lo que dicen nuestros usuarios</h2>
+            <p class="section-subtitle">Descubre cómo TrainPlanner está transformando la forma de entrenar</p>
+          </div>
+        </div>
+
+        <div class="row">
+          @for (testimonial of testimonials; track testimonial.id) {
+            <div class="col-md-4 mb-4">
+              <div class="testimonial-card h-100 p-4">
+                <div class="testimonial-rating mb-3">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    @if (star <= testimonial.rating) {
+                      <i class="bi bi-star-fill text-warning"></i>
+                    } @else {
+                      <i class="bi bi-star text-warning"></i>
+                    }
+                  }
+                </div>
+                <p class="testimonial-text">"{{ testimonial.text }}"</p>
+                <div class="testimonial-author d-flex align-items-center mt-4">
+                  <div class="author-avatar me-3">
+                    <div class="avatar-circle">
+                      {{ getInitials(testimonial.author) }}
+                    </div>
+                  </div>
+                  <div>
+                    <h6 class="author-name mb-1">{{ testimonial.author }}</h6>
+                    <p class="author-role text-muted mb-0">{{ testimonial.role }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>

@@ -1,0 +1,235 @@
+import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth-guard';
+import { roleGuard } from './core/guards/role-guard';
+import { emailVerifiedGuard } from './core/guards/email-verified-guard';
+import { subscriptionGuard } from './core/guards/subscription-guard';
+
+export const routes: Routes = [
+  { 
+    path: '', 
+    loadComponent: () => import('./features/home/home').then(m => m.Home) 
+  },
+  { 
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent) 
+  },
+  { 
+    path: 'register', 
+    loadComponent: () => import('./features/auth/register/register').then(m => m.RegisterComponent) 
+  },
+
+  { 
+    path: 'email-verified', 
+    loadComponent: () => import('./features/auth/email-verified/email-verified').then(m => m.EmailVerifiedComponent) 
+  },
+
+  {
+    path: 'perfil',
+    loadComponent: () => import('./features/perfil/perfil').then(m => m.PerfilComponent),
+    canActivate: [authGuard]
+  },
+  // Noticias
+  { 
+    path: 'news/:id', 
+    loadComponent: () => import('./features/news-detail/news-detail').then(m => m.NewsDetailComponent) 
+  },
+  // ============================================
+  // RUTAS DE SUSCRIPCIÓN
+  // ============================================
+  {
+  path: 'subscription',
+  canActivate: [authGuard],
+  children: [
+    {
+      path: 'plans',
+      loadComponent: () => import('./features/subscription/plans-list/plans-list').then(m => m.PlansListComponent)
+    },
+    {
+      path: 'checkout/:planId',
+      loadComponent: () => import('./features/subscription/checkout/checkout').then(m => m.CheckoutComponent)
+    },
+    {
+      path: 'success',
+      loadComponent: () => import('./features/subscription/payment-success/payment-success').then(m => m.PaymentSuccessComponent)
+    },
+    {
+      path: 'cancel',
+      loadComponent: () => import('./features/subscription/payment-cancel/payment-cancel').then(m => m.PaymentCancelComponent)
+    }
+  ]
+},
+  // ============================================
+  // RUTAS DE ADMIN
+  // ============================================
+  {
+    path: 'admin',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'admin' },
+    children: [
+      // Home de admin
+      {
+        path: 'home',
+        loadComponent: () => import('./features/admin/admin-home/admin-home').then(m => m.AdminHomeComponent)
+      },
+      // Usuarios
+      {
+        path: 'usuarios',
+        loadComponent: () => import('./features/admin/usuarios/usuarios-list/usuarios-list').then(m => m.AdminUsuariosListComponent)
+      },
+      {
+        path: 'usuarios/nuevo',
+        loadComponent: () => import('./features/admin/usuarios/usuario-form/usuario-form').then(m => m.AdminUsuarioFormComponent)
+      },
+      {
+        path: 'usuarios/editar/:id',
+        loadComponent: () => import('./features/admin/usuarios/usuario-form/usuario-form').then(m => m.AdminUsuarioFormComponent)
+      },
+      // Ejercicios
+      {
+        path: 'ejercicios',
+        loadComponent: () => import('./features/admin/ejercicios/ejercicios-list/ejercicios-list').then(m => m.AdminEjerciciosListComponent)
+      },
+      {
+        path: 'ejercicios/nuevo',
+        loadComponent: () => import('./features/admin/ejercicios/ejercicios-form/ejercicios-form').then(m => m.AdminEjercicioFormComponent)
+      },
+      {
+        path: 'ejercicios/editar/:id',
+        loadComponent: () => import('./features/admin/ejercicios/ejercicios-form/ejercicios-form').then(m => m.AdminEjercicioFormComponent)
+      },
+      // Rutinas
+      {
+        path: 'rutinas',
+        loadComponent: () => import('./features/admin/rutinas/rutinas-list/rutinas-list').then(m => m.AdminRutinasListComponent)
+      },
+      {
+        path: 'rutinas/nuevo',
+        loadComponent: () => import('./features/admin/rutinas/rutina-form/rutina-form').then(m => m.AdminRutinaFormComponent)
+      },
+      {
+        path: 'rutinas/editar/:id',
+        loadComponent: () => import('./features/admin/rutinas/rutina-form/rutina-form').then(m => m.AdminRutinaFormComponent)
+      },
+      {
+        path: 'rutinas/:id/ejercicios',
+        loadComponent: () => import('./features/admin/rutinas/asignar-ejercicios/asignar-ejercicios').then(m => m.AdminAsignarEjerciciosComponent)
+      },
+      {
+        path: 'asignaciones',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/admin/admin-asignaciones/admin-asignaciones').then(m => m.AdminAsignacionesListComponent)
+          },
+          {
+            path: 'nueva',
+            loadComponent: () => import('./features/admin/admin-asignar-trainee/admin-asignar-trainee').then(m => m.AdminAsignarTraineeComponent)
+          }
+        ]
+      }
+    ]
+  },
+
+  // ============================================
+  // RUTAS DE ENTRENADOR
+  // ============================================
+  {
+    path: 'entrenador',
+    canActivate: [authGuard, roleGuard, emailVerifiedGuard],
+    data: { role: 'trainer' },
+    children: [
+      // Home de entrenador
+      {
+        path: 'home',
+        loadComponent: () => import('./features/entrenador/entrenador-home/entrenador-home').then(m => m.EntrenadorHomeComponent)
+      },
+      // Ejercicios
+      {
+        path: 'ejercicios',
+        children: [
+          { 
+            path: '', 
+            loadComponent: () => import('./features/entrenador/ejercicios/ejercicios-view/ejercicios-view').then(m => m.EjerciciosViewComponent) 
+          },
+          { 
+            path: 'detalle/:id', 
+            loadComponent: () => import('./features/entrenador/ejercicios/ejercicio-detail/ejercicio-detail').then(m => m.EjercicioDetailComponent) 
+          }
+        ]
+      },
+      // Rutinas
+      {
+        path: 'rutinas',
+        loadComponent: () => import('./features/entrenador/rutinas/rutinas-list/rutinas-list').then(m => m.RutinasListComponent)
+      },
+      {
+        path: 'rutinas/nuevo',
+        loadComponent: () => import('./features/entrenador/rutinas/rutinas-form/rutinas-form').then(m => m.RutinaFormComponent)
+      },
+      {
+        path: 'rutinas/editar/:id',
+        loadComponent: () => import('./features/entrenador/rutinas/rutinas-form/rutinas-form').then(m => m.RutinaFormComponent)
+      },
+      {
+        path: 'rutinas/:id/ejercicios',
+        loadComponent: () => import('./features/entrenador/rutinas/asignar-ejercicios/asignar-ejercicios').then(m => m.AsignarEjerciciosComponent)
+      },
+      // Gestión de trainees
+      {
+        path: 'trainees',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/entrenador/trainees/trainees-list/trainees-list').then(m => m.TraineesListComponent)
+          }
+        ]
+      },
+      // Chat
+      {
+        path: 'chat/:id',
+        loadComponent: () => import('./features/entrenador/chat/chat').then(m => m.ChatComponent)
+      },
+      {
+        path: 'chat',
+        loadComponent: () => import('./features/entrenador/chat/chat').then(m => m.ChatComponent)
+      }
+    ]
+  },
+
+  // ============================================
+  // RUTAS DE TRAINEE
+  // ============================================
+  {
+    path: 'trainee',
+    canActivate: [authGuard, roleGuard, emailVerifiedGuard],
+    data: { role: 'trainee' },
+    children: [
+      {
+        path: 'home',
+        loadComponent: () => import('./features/trainee/trainee-home/trainee-home').then(m => m.TraineeHomeComponent)
+      },
+      {
+        path: 'rutinas',
+        canActivate: [subscriptionGuard],
+        loadComponent: () => import('./features/trainee/rutinas/rutinas-list/rutinas-list').then(m => m.TraineeRutinasListComponent)
+      },
+      {
+        path: 'rutinas/:id',
+        canActivate: [subscriptionGuard],
+        loadComponent: () => import('./features/trainee/rutinas/rutina-detalle/rutina-detalle').then(m => m.TraineeRutinaDetalleComponent)
+      },
+      {
+        path: 'chat',
+        canActivate: [subscriptionGuard],
+        loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)
+      },
+      {
+        path: 'chat/:id', 
+        canActivate: [subscriptionGuard],
+        loadComponent: () => import('./features/trainee/chat/chat').then(m => m.TraineeChatComponent)
+      }
+    ]
+  },
+
+  { path: '**', redirectTo: '' }
+];

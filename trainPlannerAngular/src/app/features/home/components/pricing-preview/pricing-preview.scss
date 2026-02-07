@@ -1,0 +1,147 @@
+.pricing-section {
+  padding: 5rem 0;
+  background-color: white;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin-bottom: 3rem;
+}
+
+.pricing-card {
+  border: 2px solid #e9ecef;
+  border-radius: 0.75rem;
+  background-color: white;
+  position: relative;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  
+  // Añade esta regla específica para evitar el hover en el plan gym
+  &.no-hover {
+    &:hover {
+      transform: none;
+      border-color: #e9ecef;
+    }
+  }
+  
+  // Este es el hover normal que sigue aplicando a los otros planes
+  &:not(.no-hover):hover {
+    transform: translateY(-5px);
+    border-color: #3498db;
+  }
+}
+
+.pricing-card.featured {
+  border-color: #3498db;
+  box-shadow: 0 10px 30px rgba(52, 152, 219, 0.1);
+}
+
+.featured-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #3498db;
+  color: white;
+  padding: 0.25rem 1.5rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Añade este nuevo estilo para el badge "Próximamente"
+.coming-soon-badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background-color: #6c757d;
+  color: white;
+  padding: 0.25rem 1rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pricing-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.plan-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.price {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.currency {
+  font-size: 1.5rem;
+  vertical-align: top;
+  margin-right: 2px;
+}
+
+.amount {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.period {
+  font-size: 1rem;
+  color: #6c757d;
+  font-weight: 400;
+}
+
+.plan-description {
+  font-size: 0.95rem;
+  min-height: 3rem;
+}
+
+.features-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.features-list li:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .pricing-section {
+    padding: 3rem 0;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .price {
+    font-size: 2.5rem;
+  }
+  
+  .amount {
+    font-size: 3rem;
+  }
+  
+  // Ajuste para el badge "Próximamente" en móviles
+  .coming-soon-badge {
+    right: 10px;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.8rem;
+  }
+}

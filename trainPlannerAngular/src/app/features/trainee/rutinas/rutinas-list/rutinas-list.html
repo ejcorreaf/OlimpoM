@@ -1,0 +1,56 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mis Rutinas</h2>
+  </div>
+
+  @if (loading) {
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="row">
+      @for (rutina of rutinas; track rutina.id) {
+        <div class="col-md-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              <h5 class="card-title mb-0">{{ rutina.nombre }}</h5>
+            </div>
+            <div class="card-body">
+              @if (rutina.descripcion) {
+                <p class="card-text">{{ rutina.descripcion }}</p>
+              } @else {
+                <p class="card-text text-muted">Sin descripción</p>
+              }
+              
+              <div class="mb-3">
+                <span class="badge bg-secondary">
+                  {{ contarEjercicios(rutina) }} ejercicios
+                </span>
+              </div>
+
+              <div class="mt-auto">
+                <a [routerLink]="['/trainee/rutinas', rutina.id]" 
+                   class="btn btn-outline-primary btn-sm">
+                  Ver detalles
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      
+      @if (rutinas.length === 0) {
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body text-center py-5">
+              <h4 class="text-muted">No tienes rutinas asignadas</h4>
+              <p class="text-muted">Contacta con tu entrenador para que te asigne una rutina.</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+
+.modal-content {
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-title {
+  color: #333;
+  font-weight: 600;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}

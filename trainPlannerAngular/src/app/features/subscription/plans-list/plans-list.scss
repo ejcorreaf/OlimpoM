@@ -1,0 +1,155 @@
+.plan-card {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover:not(.standalone-plan) {
+    border-color: #0d6efd;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  &.selected {
+    border-color: #0d6efd;
+    background-color: #f8f9fa;
+  }
+  
+  &.popular {
+    border-color: #198754;
+    
+    &:hover {
+      border-color: #198754;
+    }
+  }
+  
+  &.standalone-plan {
+    opacity: 0.7;
+    filter: grayscale(30%);
+    
+    .plan-features i {
+      color: #6c757d !important;
+    }
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: #e9ecef;
+    }
+  }
+}
+
+.popular-badge {
+  position: absolute;
+  top: 15px;
+  right: -30px;
+  background: #198754;
+  color: white;
+  padding: 5px 40px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.upcoming-badge {
+  position: absolute;
+  top: 15px;
+  right: -35px;
+  background: #ffc107;
+  color: #000;
+  padding: 5px 40px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.current-plan-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  
+  .badge {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+  }
+}
+
+.plan-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.plan-name {
+  font-weight: 700;
+  color: #212529;
+}
+
+.price {
+  .currency {
+    font-size: 1.5rem;
+    vertical-align: top;
+    color: #6c757d;
+  }
+  
+  .amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0 5px;
+  }
+  
+  .period {
+    font-size: 1rem;
+    color: #6c757d;
+  }
+}
+
+.plan-features {
+  min-height: 200px;
+}
+
+.current-plan-indicator {
+  .badge {
+    font-size: 0.9rem;
+  }
+}
+
+.upcoming-indicator {
+  .badge {
+    font-size: 0.9rem;
+  }
+}
+
+// Modal styles
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.current-plan-box, .new-plan-box {
+  transition: all 0.3s ease;
+  
+  h4 {
+    font-weight: 700;
+  }
+}
+
+.new-plan-box {
+  border-color: #198754 !important;
+}
+
+@media (max-width: 768px) {
+  .plan-card {
+    margin-bottom: 20px;
+  }
+  
+  .popular-badge, .upcoming-badge {
+    right: -25px;
+    padding: 5px 30px;
+    font-size: 0.7rem;
+  }
+}

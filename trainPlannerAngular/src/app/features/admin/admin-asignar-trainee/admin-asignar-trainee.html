@@ -1,0 +1,87 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Crear Nueva Asignación</h2>
+    <button class="btn btn-secondary" routerLink="/admin/asignaciones">
+      ← Volver
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  }
+
+  <div class="row">
+    <!-- Seleccionar Entrenador -->
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">1. Seleccionar Entrenador</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Entrenadores disponibles:</label>
+            <select class="form-select" [(ngModel)]="asignacion.entrenador_id">
+              <option value="0">-- Selecciona un entrenador --</option>
+              @for (entrenador of entrenadores; track entrenador.id) {
+                <option [value]="entrenador.id">{{ entrenador.name }} ({{ entrenador.email }})</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seleccionar Trainee -->
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">2. Seleccionar Trainee</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Trainees no asignados:</label>
+            <select class="form-select" [(ngModel)]="asignacion.trainee_id">
+              <option value="0">-- Selecciona un trainee --</option>
+              @for (trainee of traineesNoAsignados; track trainee.id) {
+                <option [value]="trainee.id">{{ trainee.name }} ({{ trainee.email }})</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (!loading && traineesNoAsignados.length === 0) {
+    <div class="alert alert-info">
+      No hay trainees disponibles para asignar. Todos los trainees ya tienen entrenador.
+    </div>
+  }
+
+  @if (!loading && entrenadores.length === 0) {
+    <div class="alert alert-warning">
+      No hay entrenadores registrados en el sistema.
+    </div>
+  }
+
+  <div class="text-center mt-4">
+    <button class="btn btn-primary btn-lg"
+            (click)="crearAsignacion()"
+            [disabled]="!asignacion.entrenador_id || !asignacion.trainee_id || asignando">
+      @if (asignando) {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+      }
+      Crear Asignación
+    </button>
+  </div>
+</div>
+
+<app-success-modal 
+  #successModal
+  [message]="successMessage"
+  (closed)="onSuccessModalClosed()">
+</app-success-modal>

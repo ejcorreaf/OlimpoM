@@ -1,0 +1,251 @@
+<div class="container mt-4">
+  <div class="row">
+    <!-- Lista de conversaciones -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Conversaciones</h5>
+          <button class="btn btn-primary btn-sm" (click)="abrirModalNuevoChat()">
+            <i class="bi bi-plus"></i> Nuevo Chat
+          </button>
+        </div>
+        <div class="card-body p-0" style="max-height: 500px; overflow-y: auto;">
+          @if (cargandoConversaciones && conversaciones.length === 0) {
+            <div class="text-center p-4">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <p class="text-muted mt-2 small">Cargando conversaciones...</p>
+            </div>
+          }
+          
+          @for (conv of conversaciones; track conv.id) {
+            <div class="conversacion-item p-3 border-bottom"
+                 [class.active]="conv.id === usuarioSeleccionadoId"
+                 (click)="seleccionarConversacion(conv)"
+                 style="cursor: pointer;">
+              <div class="d-flex align-items-center">
+                @if (conv.photo_url) {
+                  <img [src]="conv.photo_url" 
+                       [alt]="conv.name"
+                       class="rounded-circle me-3"
+                       style="width: 40px; height: 40px; object-fit: cover;">
+                } @else {
+                  <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center"
+                       style="width: 40px; height: 40px;">
+                    <span class="text-white fw-bold">{{ conv.name?.charAt(0) || '?' }}</span>
+                  </div>
+                }
+                
+                <div class="flex-grow-1 overflow-hidden">
+                  <h6 class="mb-1 fw-bold">{{ conv.name }}</h6>
+                  <p class="text-muted small mb-0 text-truncate">
+                    @if (conv.ultimo_mensaje) {
+                      {{ conv.ultimo_mensaje.mensaje }}
+                    } @else {
+                      Sin mensajes
+                    }
+                  </p>
+                </div>
+                
+                <div class="text-end">
+                  @if (conv.sin_leer > 0) {
+                    <span class="badge bg-primary rounded-pill">{{ conv.sin_leer }}</span>
+                  }
+                  @if (conv.ultimo_mensaje?.created_at) {
+                    <div class="text-muted extra-small">
+                      {{ formatTime(conv.ultimo_mensaje.created_at) }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+          
+          @if (!cargandoConversaciones && conversaciones.length === 0) {
+            <div class="text-center p-4 text-muted">
+              <i class="bi bi-chat-dots display-6"></i>
+              <p class="mt-2 mb-0">No hay conversaciones</p>
+              <button class="btn btn-primary btn-sm mt-2" (click)="abrirModalNuevoChat()">
+                Iniciar primera conversación
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Área de chat -->
+    <div class="col-md-8">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center">
+          @if (usuarioSeleccionado) {
+            <div class="d-flex align-items-center w-100">
+              @if (usuarioSeleccionado.photo_url) {
+                <img [src]="usuarioSeleccionado.photo_url" 
+                     [alt]="usuarioSeleccionado.name"
+                     class="rounded-circle me-3"
+                     style="width: 40px; height: 40px; object-fit: cover;">
+              } @else {
+                <div class="rounded-circle bg-primary me-3 d-flex align-items-center justify-content-center"
+                     style="width: 40px; height: 40px;">
+                  <span class="text-white fw-bold">{{ usuarioSeleccionado.name?.charAt(0) || '?' }}</span>
+                </div>
+              }
+              
+              <div class="flex-grow-1">
+                <h5 class="mb-0 fw-bold">{{ usuarioSeleccionado.name }}</h5>
+                @if (usuarioSeleccionado.email) {
+                  <p class="text-muted small mb-0">{{ usuarioSeleccionado.email }}</p>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="text-center w-100">
+              <h5 class="mb-0 text-muted">Selecciona una conversación</h5>
+            </div>
+          }
+        </div>
+
+        <div class="card-body p-0">
+          <div class="chat-messages p-3" #chatContainer 
+               style="height: 400px; overflow-y: auto;"
+               (scroll)="onChatScroll()">
+            @if (usuarioSeleccionado) {
+              @if (cargandoMensajes && mensajes.length === 0) {
+                <div class="d-flex justify-content-center align-items-center h-100">
+                  <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Cargando mensajes...</span>
+                    </div>
+                    <p class="text-muted mt-2">Cargando mensajes...</p>
+                  </div>
+                </div>
+              }
+
+              @for (mensaje of mensajes; track mensaje.id) {
+                <div class="message mb-3" [class.own]="mensaje.emisor_id === miUsuarioId">
+                  <div class="message-content p-2 rounded" 
+                       [class.bg-primary]="mensaje.emisor_id === miUsuarioId"
+                       [class.bg-light]="mensaje.emisor_id !== miUsuarioId"
+                       [class.text-white]="mensaje.emisor_id === miUsuarioId">
+                    <div class="message-text">{{ mensaje.mensaje }}</div>
+                    <div class="message-time small mt-1 d-flex justify-content-between align-items-center"
+                         [class.text-light]="mensaje.emisor_id === miUsuarioId"
+                         [class.text-muted]="mensaje.emisor_id !== miUsuarioId">
+                      <span>{{ formatTime(mensaje.created_at) }}</span>
+                      @if (mensaje.emisor_id === miUsuarioId) {
+                        <span>
+                          @if (mensaje.leido) {
+                            <i class="bi bi-check-all ms-1 text-info"></i>
+                          } @else {
+                            <i class="bi bi-check ms-1"></i>
+                          }
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @if (!cargandoMensajes && mensajes.length === 0) {
+                <div class="text-center text-muted py-5">
+                  <i class="bi bi-chat-dots display-1"></i>
+                  <p class="mt-3">No hay mensajes todavía.</p>
+                  <p>¡Envía el primer mensaje a {{ usuarioSeleccionado.name }}!</p>
+                </div>
+              }
+            } @else {
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-chat-left-text display-1"></i>
+                <p class="mt-3">Selecciona una conversación para empezar a chatear</p>
+                @if (conversaciones.length === 0) {
+                  <button class="btn btn-primary mt-2" (click)="abrirModalNuevoChat()">
+                    Iniciar tu primera conversación
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (usuarioSeleccionado) {
+          <div class="card-footer">
+            <div class="input-group">
+              <input type="text" 
+                     class="form-control" 
+                     placeholder="Escribe tu mensaje..."
+                     [(ngModel)]="nuevoMensaje"
+                     (keyup.enter)="enviarMensaje()"
+                     [disabled]="enviando">
+              <button class="btn btn-primary" 
+                      (click)="enviarMensaje()"
+                      [disabled]="!nuevoMensaje.trim() || enviando">
+                @if (enviando) {
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                } @else {
+                  <i class="bi bi-send me-1"></i>
+                }
+                Enviar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para nuevo chat -->
+@if (mostrarModalNuevoChat) {
+  <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5)">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Iniciar nuevo chat</h5>
+          <button type="button" class="btn-close" (click)="mostrarModalNuevoChat = false"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Seleccionar trainee</label>
+            <select class="form-select" [(ngModel)]="traineeSeleccionadoId">
+              <option value="">-- Selecciona un trainee --</option>
+              @for (trainee of misTrainees; track trainee.id) {
+                <option [value]="trainee.id">
+                  {{ trainee.name }} ({{ trainee.email }})
+                </option>
+              }
+            </select>
+            
+            @if (misTrainees.length === 0) {
+              <div class="alert alert-warning mt-2 mb-0">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                No tienes trainees disponibles para chatear.
+                Todos tus trainees ya tienen conversaciones iniciadas.
+              </div>
+            } @else {
+              <div class="text-muted small mt-2">
+                <i class="bi bi-info-circle me-1"></i>
+                Se muestran solo los trainees con los que no tienes conversaciones iniciadas.
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="mostrarModalNuevoChat = false">Cancelar</button>
+          <button type="button" class="btn btn-primary" 
+                  (click)="iniciarNuevoChat()"
+                  [disabled]="!traineeSeleccionadoId || misTrainees.length === 0">
+            @if (!traineeSeleccionadoId) {
+              Selecciona un trainee
+            } @else if (misTrainees.length === 0) {
+              No hay trainees disponibles
+            } @else {
+              Iniciar Chat
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

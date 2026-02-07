@@ -1,0 +1,143 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Mi Panel de Entrenamiento</h1>
+        <span class="badge bg-info fs-6">Trainee</span>
+      </div>
+      <p class="lead">Bienvenido a tu espacio personal de entrenamiento</p>
+    </div>
+  </div>
+
+  <!-- Tarjetas de Acceso Rápido -->
+  <div class="row mb-4">
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 border-primary shadow-sm hover-shadow">
+        <div class="card-body text-center p-4">
+          <div class="icon-container mb-3">
+            <i class="bi bi-clipboard-check display-4 text-primary"></i>
+          </div>
+          <h5 class="card-title fw-bold">Mis Rutinas</h5>
+          <p class="card-text text-muted mb-4">
+            Consulta y sigue las rutinas que tu entrenador ha preparado para ti
+          </p>
+          <a routerLink="/trainee/rutinas" class="btn btn-primary btn-lg w-100">
+            <i class="bi bi-arrow-right-circle me-2"></i>Acceder a Rutinas
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 border-success shadow-sm hover-shadow">
+        <div class="card-body text-center p-4">
+          <div class="icon-container mb-3">
+            <i class="bi bi-chat-dots display-4 text-success"></i>
+          </div>
+          <h5 class="card-title fw-bold">Comunicación</h5>
+          <p class="card-text text-muted mb-4">
+            Contacta directamente con tu entrenador para resolver dudas
+          </p>
+          <a routerLink="/trainee/chat" class="btn btn-success btn-lg w-100">
+            <i class="bi bi-chat-left-text me-2"></i>Abrir Chat
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 border-warning shadow-sm hover-shadow">
+        <div class="card-body text-center p-4">
+          <div class="icon-container mb-3">
+            <i class="bi bi-person-badge display-4 text-warning"></i>
+          </div>
+          <h5 class="card-title fw-bold">Mi Perfil</h5>
+          <p class="card-text text-muted mb-4">
+            Gestiona tu información personal y preferencias de entrenamiento
+          </p>
+          <a routerLink="/perfil" class="btn btn-warning btn-lg w-100">
+            <i class="bi bi-person-circle me-2"></i>Ver Perfil
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de Bienvenida -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 bg-light">
+        <div class="card-body p-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h4 class="card-title mb-3">¡Comienza tu entrenamiento!</h4>
+              <p class="card-text mb-4">
+                Tu entrenador personalizará rutinas específicas para tus objetivos. 
+                Cuando tengas asignada una rutina, aparecerá en tu sección "Mis Rutinas".
+              </p>
+              <div class="d-flex gap-2">
+                <a routerLink="/trainee/rutinas" class="btn btn-outline-primary">
+                  Ver Estado de Mis Rutinas
+                </a>
+                <a routerLink="/trainee/chat" class="btn btn-outline-success">
+                  Contactar con Entrenador
+                </a>
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <i class="bi bi-lightning-charge display-1 text-primary opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips de Entrenamiento (Genéricos) -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3 class="mb-4">Consejos para tu Entrenamiento</h3>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                  <i class="bi bi-droplet text-primary fs-4"></i>
+                </div>
+                <h6 class="mb-0">Hidratación</h6>
+              </div>
+              <p class="text-muted small">Mantente hidratado antes, durante y después del entrenamiento para un mejor rendimiento.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                  <i class="bi bi-clock-history text-success fs-4"></i>
+                </div>
+                <h6 class="mb-0">Consistencia</h6>
+              </div>
+              <p class="text-muted small">La regularidad en el entrenamiento es clave para ver progresos a largo plazo.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-info bg-opacity-10 p-2 rounded me-3">
+                  <i class="bi bi-activity text-info fs-4"></i>
+                </div>
+                <h6 class="mb-0">Técnica</h6>
+              </div>
+              <p class="text-muted small">Prioriza la correcta ejecución de los ejercicios sobre el peso o la velocidad.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

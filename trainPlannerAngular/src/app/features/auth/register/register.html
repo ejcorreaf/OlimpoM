@@ -1,0 +1,165 @@
+<div class="register-container">
+  <h2>Crear Cuenta</h2>
+
+  <form [formGroup]="registerForm" (ngSubmit)="register()" class="register-form">
+    <!-- Usuario -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-person"></i>
+        </span>
+        <input
+          formControlName="name"
+          class="form-control"
+          placeholder="Nombre de usuario">
+      </div>
+      @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+        <small class="text-danger">El nombre es obligatorio</small>
+      }
+    </div>
+
+    <!-- DNI -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-card-text"></i>
+        </span>
+        <input
+          formControlName="dni"
+          class="form-control"
+          placeholder="DNI (12345678X)"
+          maxlength="9"
+          appUppercase
+          appDniValidator>
+      </div>
+      @if (registerForm.get('dni')?.touched && registerForm.get('dni')?.invalid) {
+        @if (registerForm.get('dni')?.hasError('required')) {
+          <small class="text-danger">El DNI es obligatorio</small>
+        }
+        @if (registerForm.get('dni')?.hasError('dniFormat') || registerForm.get('dni')?.hasError('dniInvalid')) {
+          <small class="text-danger">DNI inválido (8 números + 1 letra válida)</small>
+        }
+      }
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-envelope"></i>
+        </span>
+        <input
+          formControlName="email"
+          class="form-control"
+          placeholder="Email">
+      </div>
+      @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+        @if (registerForm.get('email')?.hasError('required')) {
+          <small class="text-danger">El email es obligatorio</small>
+        }
+        @if (registerForm.get('email')?.hasError('email')) {
+          <small class="text-danger">Formato de email inválido</small>
+        }
+      }
+      @if (registerForm.get('email')?.hasError('emailTaken')) {
+        <small class="text-danger">Este email ya está registrado</small>
+      }
+    </div>
+
+    <!-- Contraseña -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-key"></i>
+        </span>
+        <input
+          type="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Contraseña (mínimo 8 caracteres)">
+      </div>
+      @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+        <small class="text-danger">Mínimo 8 caracteres</small>
+      }
+    </div>
+
+    <!-- Confirmar Contraseña -->
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-key-fill"></i>
+        </span>
+        <input
+          type="password"
+          formControlName="password_confirmation"
+          class="form-control"
+          placeholder="Confirmar contraseña">
+      </div>
+      @if (registerForm.get('password_confirmation')?.touched && registerForm.get('password_confirmation')?.invalid) {
+        @if (registerForm.get('password_confirmation')?.hasError('passwordMismatch')) {
+          <small class="text-danger">Las contraseñas no coinciden</small>
+        }
+      }
+    </div>
+
+    <!-- Notas -->
+    <div class="form-group">
+      <label class="form-label">Información adicional (opcional)</label>
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-info-circle"></i>
+        </span>
+        <textarea
+          formControlName="notes"
+          class="form-control"
+          rows="3"
+          placeholder="Alergias, lesiones, objetivos, observaciones..."></textarea>
+      </div>
+      <small class="form-text">
+        Esta información solo será visible para ti y los administradores.
+      </small>
+    </div>
+
+    <!-- Política de Privacidad -->
+    <div class="privacy-check">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="privacyPolicy"
+          id="privacyPolicy">
+        <label class="form-check-label" for="privacyPolicy">
+          Acepto la <a href="#" class="text-primary" (click)="openPrivacyPolicy($event)">política de privacidad</a>
+        </label>
+      </div>
+      @if (registerForm.get('privacyPolicy')?.invalid && registerForm.get('privacyPolicy')?.touched) {
+        <small class="text-danger mt-1">Debes aceptar la política de privacidad</small>
+      }
+    </div>
+
+    <!-- Error general -->
+    @if (errorRegistro) {
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Error en el registro. Por favor, verifica los datos.
+      </div>
+    }
+
+    <!-- Botón -->
+    <button 
+      type="submit" 
+      class="btn btn-primary mt-2"
+      [disabled]="registerForm.invalid">
+      Registrarse
+    </button>
+
+    <!-- Enlace a login -->
+    <div class="login-link">
+      <span>¿Ya tienes cuenta? </span>
+      <a routerLink="/login">Inicia sesión aquí</a>
+    </div>
+  </form>
+</div>
+
+<!-- Modal fuera del formulario -->
+<app-privacy-modal (accepted)="onPrivacyAccepted()" #privacyModal></app-privacy-modal>

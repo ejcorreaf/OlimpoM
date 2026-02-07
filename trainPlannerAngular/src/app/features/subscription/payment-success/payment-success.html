@@ -1,0 +1,79 @@
+<div class="payment-success-page">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card text-center border-0 shadow">
+          <div class="card-body p-5">
+            @if (loading) {
+              <div class="py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p>Verificando tu pago...</p>
+              </div>
+            } @else {
+              <!-- Icono de éxito -->
+              <div class="success-icon mb-4">
+                <div class="icon-circle">
+                  <i class="bi bi-check-lg"></i>
+                </div>
+              </div>
+              
+              <!-- Mensaje principal -->
+              <h1 class="display-6 fw-bold mb-3">¡Pago Completado!</h1>
+              <p class="lead text-muted mb-4">
+                Tu suscripción al plan <strong>{{ planName }}</strong> ha sido activada correctamente.
+              </p>
+              
+              <!-- Detalles -->
+              <div class="alert alert-success mb-4">
+                <div class="d-flex">
+                  <i class="bi bi-info-circle me-3" style="font-size: 1.5rem;"></i>
+                  <div class="text-start">
+                    <h6 class="alert-heading mb-2">Información importante</h6>
+                    <ul class="mb-0 ps-3">
+                      <li>Acceso inmediato a todas las rutinas</li>
+                      <li>Recibirás un email con la confirmación</li>
+                      <li>La suscripción se renovará automáticamente</li>
+                      <li>ID de transacción: {{ subscriptionId || 'N/A' }}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Acciones -->
+              <div class="d-grid gap-3">
+                <button class="btn btn-primary btn-lg" (click)="goToRoutines()">
+                  <i class="bi bi-list-check me-2"></i>Ver mis rutinas
+                </button>
+                
+                <button class="btn btn-outline-primary" (click)="goToDashboard()">
+                  <i class="bi bi-house me-2"></i>Ir al inicio
+                </button>
+              </div>
+              
+              <!-- Información adicional -->
+              <div class="mt-5 pt-4 border-top">
+                <h6 class="mb-3">¿Necesitas ayuda?</h6>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-envelope text-primary me-2"></i>
+                      <span>soporte@trainplanner.com</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-telephone text-primary me-2"></i>
+                      <span>+34 900 123 456</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

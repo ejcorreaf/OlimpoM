@@ -1,0 +1,131 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Catálogo de Ejercicios</h2>
+    <div class="text-muted">
+      <i class="fas fa-eye me-2"></i>Modo de solo lectura
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" 
+                   class="form-control" 
+                   placeholder="Buscar por nombre, descripción o grupo..." 
+                   [(ngModel)]="searchTerm"
+                   (ngModelChange)="onSearch()">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-center">
+            <span class="me-2 text-muted">Filtrar por grupo:</span>
+            <div class="btn-group flex-wrap">
+              <button type="button" 
+                      class="btn btn-outline-secondary btn-sm" 
+                      [class.active]="!grupoSeleccionado"
+                      (click)="clearFilters()">
+                Todos
+              </button>
+              @for (grupo of gruposMusculares; track grupo) {
+                <button type="button" 
+                        class="btn btn-outline-secondary btn-sm" 
+                        [class.active]="grupoSeleccionado === grupo"
+                        (click)="onGrupoChange(grupo)">
+                  {{ grupo }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando ejercicios...</p>
+    </div>
+  }
+
+  <!-- Lista de ejercicios -->
+  @if (!loading) {
+    <div class="row">
+      @for (ejercicio of ejercicios; track ejercicio.id) {
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow-sm">
+            @if (ejercicio.foto) {
+              <img [src]="'http://localhost:8000/ejercicios/' + ejercicio.foto" 
+                   [alt]="ejercicio.nombre" 
+                   class="card-img-top"
+                   style="height: 200px; object-fit: cover; cursor: pointer;"
+                   [routerLink]="['/entrenador/ejercicios/detalle', ejercicio.id]">
+            } @else {
+              <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                   style="height: 200px; cursor: pointer;"
+                   [routerLink]="['/entrenador/ejercicios/detalle', ejercicio.id]">
+                <div class="text-center text-muted">
+                  <i class="fas fa-dumbbell fa-3x mb-2"></i>
+                  <p class="mb-0">Sin imagen</p>
+                </div>
+              </div>
+            }
+            <div class="card-body">
+              <h5 class="card-title">{{ ejercicio.nombre }}</h5>
+              <span class="badge bg-primary mb-2">
+                <i class="fas fa-dumbbell me-1"></i>
+                {{ ejercicio.grupo_muscular }}
+              </span>
+              <p class="card-text text-muted small">
+                {{ ejercicio.descripcion && ejercicio.descripcion.length > 100 ? 
+                   (ejercicio.descripcion | slice:0:100) + '...' : ejercicio.descripcion || 'Sin descripción' }}
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+              <a [routerLink]="['/entrenador/ejercicios/detalle', ejercicio.id]" 
+                 class="btn btn-outline-primary btn-sm w-100">
+                <i class="fas fa-info-circle me-1"></i>Ver Detalles
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+      
+      @if (ejercicios.length === 0) {
+        <div class="col-12">
+          <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x mb-3"></i>
+            <h4>No se encontraron ejercicios</h4>
+            <p>Intenta con otros filtros de búsqueda</p>
+            <button class="btn btn-outline-info" (click)="clearFilters()">
+              <i class="fas fa-times me-1"></i>Limpiar filtros
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+    
+    <!-- Estadísticas -->
+    @if (ejercicios.length > 0) {
+      <div class="alert alert-secondary mt-4">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Total de ejercicios:</strong> {{ ejercicios.length }}
+          </div>
+          <div class="col-md-6">
+            <strong>Grupo seleccionado:</strong> {{ grupoSeleccionado || 'Todos' }}
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,30 @@
+// Estilos para el PDF
+@media print {
+  .btn, 
+  [routerLink], 
+  nav, 
+  header, 
+  footer {
+    display: none !important;
+  }
+  
+  .card {
+    border: 1px solid #000 !important;
+    break-inside: avoid;
+  }
+}
+
+// Estilos para el botón de descarga
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+  
+  &:hover:not(:disabled) {
+    background-color: #157347;
+    border-color: #146c43;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+  }
+}

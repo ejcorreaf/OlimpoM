@@ -1,0 +1,57 @@
+.subscription-status-card {
+  .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border-radius: 0.75rem;
+  }
+  
+  .card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+  }
+  
+  .subscription-plan-name {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    
+    .detail-label {
+      font-weight: 500;
+      color: #5a6c7d;
+      
+      i {
+        width: 20px;
+      }
+    }
+    
+    .detail-value {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+  }
+  
+  .subscription-inactive {
+    i {
+      opacity: 0.3;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .subscription-status-card {
+    .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+  }
+}

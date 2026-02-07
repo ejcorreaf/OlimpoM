@@ -1,0 +1,83 @@
+<section class="news-section py-6 bg-light">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <h2 class="section-title">Últimas Noticias</h2>
+        <p class="section-subtitle">Mantente informado con los últimos consejos y tendencias del mundo fitness</p>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="row">
+        <div class="col-12 text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="row">
+        @for (post of posts; track post.id) {
+          <div class="col-md-4 mb-4">
+            <div class="card h-100 news-card">
+              <div class="card-img-top-container">
+                <img 
+                  [src]="post.image_url || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop'" 
+                  class="card-img-top"
+                  [alt]="post.title"
+                >
+                <span class="category-badge">{{ getCategoryLabel(post.category) }}</span>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <div class="mb-2">
+                  <small class="text-muted">
+                    <i class="bi bi-calendar me-1"></i>
+                    {{ formatDate(post.published_at) }}
+                  </small>
+                  <small class="text-muted ms-3">
+                    <i class="bi bi-eye me-1"></i>
+                    {{ post.view_count }} vistas
+                  </small>
+                </div>
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text text-muted">{{ post.excerpt || truncateText(post.content, 120) }}</p>
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                      <i class="bi bi-clock me-1"></i>
+                      {{ getReadingTime(post.content) }} min lectura
+                    </small>
+                    <a 
+                      [routerLink]="['/news', post.id]" 
+                      class="btn btn-link text-primary p-0"
+                    >
+                      Leer más <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (!readMoreMode) {
+        <div class="row mt-5">
+          <div class="col-12 text-center">
+            <button class="btn btn-outline-primary" (click)="toggleReadMore()">
+              Ver todas las noticias
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="row">
+          <div class="col-12 text-center mt-4">
+            <button class="btn btn-outline-secondary" (click)="toggleReadMore()">
+              Ver menos
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>

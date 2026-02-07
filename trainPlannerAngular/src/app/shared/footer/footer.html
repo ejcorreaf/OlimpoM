@@ -1,0 +1,25 @@
+<footer class="footer mt-auto py-3 bg-light">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <span class="text-muted">&copy; {{ currentYear }} TrainPlanner App. Todos los derechos reservados.</span>
+      </div>
+      <div class="col-md-6 text-md-end text-start mt-2 mt-md-0">
+        <a href="javascript:void(0)" 
+           (click)="openPrivacyModal()" 
+           class="text-muted me-3 text-decoration-none">
+          <i class="bi bi-shield-check me-1"></i>Política de Privacidad
+        </a>
+        <a href="javascript:void(0)" 
+           (click)="openContactModal()" 
+           class="text-muted text-decoration-none">
+          <i class="bi bi-envelope me-1"></i>Contacto
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- MODALES -->
+<app-privacy-footer-modal #privacyModal></app-privacy-footer-modal>
+<app-contact-modal #contactModal></app-contact-modal>

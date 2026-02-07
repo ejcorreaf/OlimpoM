@@ -1,0 +1,11 @@
+.footer {
+  border-top: 1px solid #1277db;
+  
+  a {
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

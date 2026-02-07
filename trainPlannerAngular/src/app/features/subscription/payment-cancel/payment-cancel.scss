@@ -1,0 +1,27 @@
+.payment-cancel-page {
+  min-height: calc(100vh - 200px);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  
+  .card {
+    border-radius: 1rem;
+    background-color: white;
+  }
+}
+
+.cancel-icon {
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      color: white;
+      font-size: 2.5rem;
+    }
+  }
+}

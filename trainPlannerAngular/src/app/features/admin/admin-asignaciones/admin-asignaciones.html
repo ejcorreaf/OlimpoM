@@ -1,0 +1,86 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Asignaciones Entrenador-Trainee</h2>
+    <button class="btn btn-primary" routerLink="/admin/asignaciones/nueva">
+      Nueva Asignación
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  }
+
+  @for (entrenador of entrenadores; track entrenador.id) {
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">{{ entrenador.name }} ({{ entrenador.email }})</h5>
+      </div>
+      <div class="card-body">
+        <h6 class="mb-3">Trainees Asignados:</h6>
+        
+        @if (entrenador.trainees_asignados && entrenador.trainees_asignados.length > 0) {
+          <div class="row">
+            @for (trainee of entrenador.trainees_asignados; track trainee.id) {
+              <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      @if (trainee.photo_url) {
+                        <img [src]="trainee.photo_url" 
+                             [alt]="trainee.name"
+                             class="rounded-circle me-3"
+                             style="width: 40px; height: 40px; object-fit: cover;">
+                      } @else {
+                        <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center"
+                             style="width: 40px; height: 40px;">
+                          <span class="text-white">{{ trainee.name.charAt(0) }}</span>
+                        </div>
+                      }
+                      <div>
+                        <h6 class="card-title mb-1">{{ trainee.name }}</h6>
+                        <p class="card-text text-muted small mb-0">{{ trainee.email }}</p>
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <button class="btn btn-outline-danger btn-sm w-100"
+                              (click)="prepareDesasignarTrainee(entrenador.id, trainee.id)">
+                        <i class="bi bi-person-dash"></i> Desasignar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="alert alert-info mb-0">
+            Este entrenador no tiene trainees asignados.
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading && entrenadores.length === 0) {
+    <div class="alert alert-info">
+      No hay asignaciones registradas.
+    </div>
+  }
+</div>
+
+@if (showConfirmModal) {
+  <app-confirm-modal 
+    [message]="confirmMessage"
+    (confirm)="desasignarTrainee()"
+    (cancel)="onConfirmModalCancel()">
+  </app-confirm-modal>
+}
+
+<app-success-modal 
+  #successModal
+  [message]="successMessage">
+</app-success-modal>

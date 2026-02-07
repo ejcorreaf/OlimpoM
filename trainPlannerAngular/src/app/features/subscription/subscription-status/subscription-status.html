@@ -1,0 +1,149 @@
+<div class="subscription-status-card">
+  @if (isTrainee) {
+    <div class="subscription-status-card">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-credit-card me-2"></i>Estado de Suscripción
+          </h5>
+        </div>
+        
+        <div class="card-body">
+          @if (loading) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else {
+            @if (tieneSuscripcionActiva && suscripcion) {
+              <div class="subscription-active">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="subscription-plan-name h5 mb-0">
+                    {{ suscripcion.plan?.nombre || 'Plan Sin Nombre' }}
+                  </span>
+                  <span [class]="getStatusClass(suscripcion.estado)">
+                    {{ getStatusLabel(suscripcion.estado) }}
+                  </span>
+                </div>
+                
+                <div class="subscription-details">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="detail-item">
+                        <span class="detail-label">
+                          <i class="bi bi-calendar-check me-2"></i>Inicio:
+                        </span>
+                        <span class="detail-value">{{ formatDate(suscripcion.inicio_en) }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <div class="detail-item">
+                        <span class="detail-label">
+                          <i class="bi bi-calendar-x me-2"></i>Expira:
+                        </span>
+                        <span class="detail-value">{{ formatDate(suscripcion.expira_en) }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <div class="detail-item">
+                        <span class="detail-label">
+                          <i class="bi bi-currency-euro me-2"></i>Precio:
+                        </span>
+                        <span class="detail-value">{{ suscripcion.plan?.precio || '0' }}€/mes</span>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <div class="detail-item">
+                        <span class="detail-label">
+                          <i class="bi bi-arrow-repeat me-2"></i>Días/semana:
+                        </span>
+                        <span class="detail-value">{{ suscripcion.plan?.dias_por_semana || 'N/A' }}</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Agrega duración del plan -->
+                    <div class="col-md-6 mb-3">
+                      <div class="detail-item">
+                        <span class="detail-label">
+                          <i class="bi bi-clock me-2"></i>Duración:
+                        </span>
+                        <span class="detail-value">{{ suscripcion.plan?.duracion_dias || '30' }} días</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Método de pago -->
+                    <div class="col-md-6 mb-3">
+                      <div class="detail-item">
+                        <span class="detail-label">
+                          <i class="bi bi-credit-card me-2"></i>Método:
+                        </span>
+                        <span class="detail-value text-capitalize">
+                          {{ suscripcion.metodo_pago || 'manual' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  @if (suscripcion.plan?.caracteristicas && suscripcion.plan.caracteristicas.length > 0) {
+                    <div class="mt-4">
+                      <h6 class="mb-3">Características incluidas:</h6>
+                      <ul class="list-unstyled">
+                        @for (feature of suscripcion.plan.caracteristicas; track feature) {
+                          <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            {{ feature }}
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
+                </div>
+                
+                <div class="mt-4 pt-3 border-top">
+                  <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-danger" (click)="prepareCancelSubscription()">
+                      <i class="bi bi-x-circle me-1"></i>Cancelar
+                    </button>
+                    <a routerLink="/subscription/plans" class="btn btn-primary">
+                      <i class="bi bi-arrow-up-circle me-1"></i>Cambiar Plan
+                    </a>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="subscription-inactive text-center py-4">
+                <div class="mb-4">
+                  <i class="bi bi-credit-card text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h5 class="mb-3">No tienes una suscripción activa</h5>
+                <p class="text-muted mb-4">
+                  Para acceder a todas las rutinas y características premium, necesitas activar una suscripción.
+                </p>
+                <a routerLink="/subscription/plans" class="btn btn-primary btn-lg">
+                  <i class="bi bi-lightning-charge me-2"></i>Ver Planes Disponibles
+                </a>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@if (showConfirmModal) {
+  <app-confirm-modal 
+    [message]="confirmMessage"
+    (confirm)="cancelSubscription()"
+    (cancel)="onConfirmModalCancel()">
+  </app-confirm-modal>
+}
+
+<app-success-modal 
+  #successModal
+  [message]="successMessage">
+</app-success-modal>

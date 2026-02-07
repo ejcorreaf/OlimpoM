@@ -1,0 +1,129 @@
+:host {
+  display: block;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  max-width: 400px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  padding: 2.5rem;
+  margin: 2rem auto;
+  
+  .brand_logo_container {
+    margin-bottom: 2rem;
+    text-align: center;
+    
+    img {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+  
+  h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+    
+    .input-group {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+      
+      &:focus-within {
+        border-color: #4a6cf7;
+        box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+      }
+      
+      .input-group-text {
+        background: #f8f9fa;
+        border: none;
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        
+        i {
+          width: 16px;
+        }
+      }
+      
+      .form-control {
+        border: none;
+        padding: 0.75rem;
+        box-shadow: none;
+        
+        &:focus {
+          box-shadow: none;
+        }
+        
+        &::placeholder {
+          color: #adb5bd;
+        }
+      }
+    }
+    
+    .form-text {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+  }
+  
+  .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #4a6cf7 0%, #6a82fb 100%);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+    }
+    
+    &:disabled {
+      background: #ccc;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+  
+  .alert-danger {
+    background: #fee;
+    border: 1px solid #fcc;
+    color: #c00;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .register-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+    
+    a {
+      color: #4a6cf7;
+      text-decoration: none;
+      font-weight: 500;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

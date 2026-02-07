@@ -17,8 +17,6 @@ Plataforma pensada para **entrenadores personales** y **alumnos (trainees)** que
 - **Trainees** → visualizan sus rutinas asignadas, marcan progreso y se comunican con su entrenador  
 - **Administradores** → gestionan usuarios, ejercicios globales y supervisan la plataforma
 
-(Próximamente: modalidad **autodidacta** donde los usuarios pueden asignarse rutinas ellos mismos)
-
 ### Estructura del proyecto
 
 OlimpoM/
